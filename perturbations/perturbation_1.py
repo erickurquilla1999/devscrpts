@@ -8,6 +8,7 @@ The data file 'particle_input.dat' should be in the same directory as this scrip
 
 import numpy as np
 import random
+import matplotlib.pyplot as plt                                                                                                                  
 
 # Reading initial condition data
 n_flavors = np.loadtxt('particle_input.dat', max_rows=1) # read number of flavor of particles in the initial condition script
