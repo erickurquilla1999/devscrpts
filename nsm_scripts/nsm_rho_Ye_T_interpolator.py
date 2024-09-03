@@ -33,7 +33,7 @@ def interpolate(grid, T, rho, Ye, interpolation_point):
     
     # Perform linear interpolation for the electron fraction (Ye) at the given interpolation point
     Ye_interpolated  = griddata( grid, Ye,  interpolation_point, method='linear', rescale=False)[0]
-    
+
     # Return the interpolated values as a list
     return [T_interpolated, rho_interpolated, Ye_interpolated]
 
@@ -67,6 +67,12 @@ def interpolate_Ye_rho_T(emu_mesh):
     phi_spherical_coordinates   = np.arctan2( y_cartesian_coordinates, x_cartesian_coordinates ) # radians from -pi to pi
     phi_spherical_coordinates = np.where(phi_spherical_coordinates < 0, phi_spherical_coordinates + 2 * np.pi, phi_spherical_coordinates) # Adjusting the angle to be between 0 and 2pi.
 
+    # Getting maximum r, theta and phi of NSM simulation grid
+    r_start   = np.min(r_spherical_coordinates)
+    r_end     = np.max(r_spherical_coordinates)
+    phi_start = np.min(phi_spherical_coordinates)
+    phi_end   = np.max(phi_spherical_coordinates)
+
     # Getting index of Ye and rho in NSM data
     index_Ye = np.where(dump_file['P'].attrs['vnams'] == 'Ye')[0][0]
     index_rho = np.where(dump_file['P'].attrs['vnams'] == 'RHO')[0][0]
@@ -78,10 +84,8 @@ def interpolate_Ye_rho_T(emu_mesh):
 
     # Computing delta_ln_r in NSM grid points. This quantity remains constant in the data.
     r_points   = np.sqrt( x_cartesian_coordinates[:,0,0]**2 + y_cartesian_coordinates[:,0,0]**2 + z_cartesian_coordinates[:,0,0]**2 )
-    r_start    = r_points[0]
-    r_end      = r_points[-1]
-    delta_ln_r = np.log(r_points[1]) - np.log(r_points[0]) 
-    lnr_start  = np.log(r_points[0])
+    delta_ln_r = np.log(r_points[1]) - np.log(r_points[0])
+    lnr_start  = np.log(r_start)
 
     print(f'NSM r_start = {r_start:.3e} cm')
     print(f'NSM r_end = {r_end:.3e} cm')
@@ -90,8 +94,6 @@ def interpolate_Ye_rho_T(emu_mesh):
     # Computing delta_phi in NSM grid points. This quantity remains constant in the data.
     phi_points = np.arctan2( y_cartesian_coordinates[0,0,:] , x_cartesian_coordinates[0,0,:] ) 
     phi_points = np.where(phi_points < 0, phi_points + 2 * np.pi, phi_points) # Adjusting the angle to be between 0 and 2pi.
-    phi_start  = phi_points[0]
-    phi_end    = phi_points[-1]
     delta_phi  = phi_points[1] - phi_points[0]
 
     # Compute spherical coordinates \( r \) and \( \phi \) of EMU mesh points.
@@ -110,22 +112,21 @@ def interpolate_Ye_rho_T(emu_mesh):
     y_emu_grid_for_interpolation   = emu_mesh[:,:,:,1][indices_r_emu_grid_in_nsm_simulation_domain]
     z_emu_grid_for_interpolation   = emu_mesh[:,:,:,2][indices_r_emu_grid_in_nsm_simulation_domain]
 
-    print(f'There are {len(r_emu_grid.flatten())} points in EMU grid')
-    print(f'{len(r_emu_grid_for_interpolation)} where taken for interpolation')
+    print(f'There are {len(r_emu_grid.flatten())} points in EMU grid. {len(r_emu_grid_for_interpolation)} points where taken for interpolation')
 
     # EMU grid points in Cartesian coordinates where interpolation will be performed.
     emu_grid_for_interpolation = np.stack( ( x_emu_grid_for_interpolation , y_emu_grid_for_interpolation , z_emu_grid_for_interpolation ), axis=-1)
 
     # Compute the radial bin in NSM data of EMU grid points.
     ln_r_emu_grid_for_interpolation  = np.log( r_emu_grid_for_interpolation )
-    ln_r_emu_grid_float_index = np.abs( ln_r_emu_grid_for_interpolation - lnr_start ) / delta_ln_r
+    ln_r_emu_grid_float_index = ( ln_r_emu_grid_for_interpolation - lnr_start ) / delta_ln_r
     ln_r_emu_grid_ceil_index = np.ceil(ln_r_emu_grid_float_index)   # The ceil of the scalar x is the smallest integer i, such that i >= x. 
     ln_r_emu_grid_floor_index = np.floor(ln_r_emu_grid_float_index) # The floor of the scalar x is the largest integer i, such that i <= x.
     ln_r_emu_grid_indices = np.stack( ( ln_r_emu_grid_floor_index , ln_r_emu_grid_ceil_index ), axis=-1)
     ln_r_emu_grid_indices = ln_r_emu_grid_indices.astype(int)
 
     # Compute the azimultal bin in NSM data of EMU grid points.
-    phi_emu_grid_float_index = np.abs( phi_emu_grid_for_interpolation - phi_start ) / delta_phi
+    phi_emu_grid_float_index = ( phi_emu_grid_for_interpolation - phi_start ) / delta_phi
     phi_emu_grid_ceil_index = np.ceil(phi_emu_grid_float_index)   # The ceil of the scalar x is the smallest integer i, such that i >= x. 
     phi_emu_grid_floor_index = np.floor(phi_emu_grid_float_index) # The floor of the scalar x is the largest integer i, such that i <= x.
     phi_emu_grid_indices = np.stack( ( phi_emu_grid_floor_index , phi_emu_grid_ceil_index ), axis=-1)
@@ -143,22 +144,42 @@ def interpolate_Ye_rho_T(emu_mesh):
         plus_phi_idx  = phi_emu_grid_indices[i][1]
 
         if ( minus_r_idx == plus_r_idx ):
-            # If an EMU grid point is exactly between two radial bins, consider both bins for interpolation.
-            minus_r_idx -= 0
-            plus_r_idx  += 1 
-
-        if ( minus_phi_idx == plus_phi_idx ):
-            # If an EMU grid point is exactly between two azimultal bins, consider both bins for interpolation.
+            # If an EMU grid point is exactly between two radial bins, consider the following two option:
+            if ( minus_r_idx == len( grid_cartesian[:,0,0,0] ) ):
+                # If the grid point is at the outer boundary, consider the last bin.
+                minus_r_idx += -1
+                plus_r_idx  +=  0
+            else :
+                # Otherwise consider the bin in increasing radial direction.
+                minus_r_idx += 0
+                plus_r_idx  += 1
+       
+        # If phi is smaller than phi_start and bigger or equal than phi_end
+        phi_last_beam = False
+        if ( ( phi_emu_grid_for_interpolation[i] >= phi_end ) or phi_emu_grid_for_interpolation[i] < phi_start ):
+            phi_last_beam = True            
+        elif ( minus_phi_idx == plus_phi_idx ):
+            # If an EMU grid point is exactly between two azimultal bins, consider the bin in increasing azimultal direction.
             minus_phi_idx -= 0
             plus_phi_idx  += 1 
 
         # To perform faster interpolation, reduce the NSM data set to the radial and azimuthal bin where the EMU grid point is located.
-        x_for_interpolation   = x_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
-        y_for_interpolation   = y_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
-        z_for_interpolation   = z_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
-        Ye_for_interpolation  = Ye                     [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
-        T_for_interpolation   = T                      [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
-        rho_for_interpolation = rho                    [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+        if phi_last_beam : 
+            # If phi is in the last bin, concatenate the last phi coordinates with the initial ones.
+            x_for_interpolation   = np.concatenate( ( x_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , x_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+            y_for_interpolation   = np.concatenate( ( y_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , y_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+            z_for_interpolation   = np.concatenate( ( z_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , z_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+            Ye_for_interpolation  = np.concatenate( ( Ye                     [ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , Ye                     [ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+            T_for_interpolation   = np.concatenate( ( T                      [ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , T                      [ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+            rho_for_interpolation = np.concatenate( ( rho                    [ minus_r_idx : plus_r_idx + 1 , : , -1 :   ].flatten() , rho                    [ minus_r_idx : plus_r_idx + 1 , : ,  0 : 1 ].flatten() ) )
+        else :
+            # If phi is not in the last bin, concatenate contiguous phi coordinates using a slicing operation.
+            x_for_interpolation   = x_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+            y_for_interpolation   = y_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+            z_for_interpolation   = z_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+            Ye_for_interpolation  = Ye                     [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+            T_for_interpolation   = T                      [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
+            rho_for_interpolation = rho                    [ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
 
         # Unstructured grid points extracted from the NSM simulation data set closest to where the EMU grid point is located.
         grid_for_interpolation = np.stack( ( x_for_interpolation , y_for_interpolation , z_for_interpolation ) , axis=-1 )
