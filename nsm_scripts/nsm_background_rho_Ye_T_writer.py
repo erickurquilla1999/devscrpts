@@ -33,8 +33,8 @@ rho = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, nc
 T = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 Ye = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 
-rho[indices] = T_rho_Ye[:,0]
-T[indices] = T_rho_Ye[:,1]
+T[indices] = T_rho_Ye[:,0]
+rho[indices] = T_rho_Ye[:,1]
 Ye[indices] = T_rho_Ye[:,2]
 
 # Write hdf5 file with all the data

@@ -25,7 +25,6 @@ def interpolate(grid, T, rho, Ye, interpolation_point):
     - A list containing the interpolated values of T, rho, and Ye at the interpolation point.
       [T_interpolated, rho_interpolated, Ye_interpolated]
     """
-    
     # Perform linear interpolation for the temperature (T) at the given interpolation point
     T_interpolated   = griddata( grid, T,   interpolation_point, method='linear', rescale=False)[0]
 
@@ -62,6 +61,12 @@ def interpolate_Ye_rho_T(emu_mesh):
     y_cartesian_coordinates = grid_cartesian[...,2] # cm
     z_cartesian_coordinates = grid_cartesian[...,3] # cm
 
+    # Transform NSM simulation grid to spherical coordinates system
+    r_spherical_coordinates     = np.sqrt( x_cartesian_coordinates**2 + y_cartesian_coordinates**2 + z_cartesian_coordinates**2 ) # cm
+    theta_spherical_coordinates = np.arccos( z_cartesian_coordinates / r_spherical_coordinates ) # radians from 0 to pi
+    phi_spherical_coordinates   = np.arctan2( y_cartesian_coordinates, x_cartesian_coordinates ) # radians from -pi to pi
+    phi_spherical_coordinates = np.where(phi_spherical_coordinates < 0, phi_spherical_coordinates + 2 * np.pi, phi_spherical_coordinates) # Adjusting the angle to be between 0 and 2pi.
+
     # Getting index of Ye and rho in NSM data
     index_Ye = np.where(dump_file['P'].attrs['vnams'] == 'Ye')[0][0]
     index_rho = np.where(dump_file['P'].attrs['vnams'] == 'RHO')[0][0]
@@ -84,16 +89,18 @@ def interpolate_Ye_rho_T(emu_mesh):
 
     # Computing delta_phi in NSM grid points. This quantity remains constant in the data.
     phi_points = np.arctan2( y_cartesian_coordinates[0,0,:] , x_cartesian_coordinates[0,0,:] ) 
+    phi_points = np.where(phi_points < 0, phi_points + 2 * np.pi, phi_points) # Adjusting the angle to be between 0 and 2pi.
     phi_start  = phi_points[0]
     phi_end    = phi_points[-1]
     delta_phi  = phi_points[1] - phi_points[0]
-    
+
     # Compute spherical coordinates \( r \) and \( \phi \) of EMU mesh points.
     r_emu_grid = np.sqrt(emu_mesh[:,:,:,0]**2 + emu_mesh[:,:,:,1]**2 + emu_mesh[:,:,:,2]**2) # Computing r in spherical coordinates for the EMU grid points.
     phi_emu_grid = np.arctan2( emu_mesh[:,:,:,1] , emu_mesh[:,:,:,0] )  # Computing the phi in spherical coordinates for the EMU grid points.
 
     # Extracting indices of the EMU grid points that are within the NSM simulation domain.
-    indices_r_emu_grid_in_nsm_simulation_domain = np.where( (r_emu_grid > r_start) & (r_emu_grid < r_end) ) # Do not allow cell centers on the NSM domain boundaries.
+    # indices_r_emu_grid_in_nsm_simulation_domain = np.where( (r_emu_grid > r_start) & (r_emu_grid < r_end) ) # Do not allow cell centers on the NSM domain boundaries.
+    indices_r_emu_grid_in_nsm_simulation_domain = np.where( (r_emu_grid >= r_start) & (r_emu_grid <= r_end) ) # Allow cell centers on the NSM domain boundaries.
     
     # Extracting the EMU grid points that are within the NSM simulation domain.
     r_emu_grid_for_interpolation   = r_emu_grid       [indices_r_emu_grid_in_nsm_simulation_domain]
@@ -103,26 +110,29 @@ def interpolate_Ye_rho_T(emu_mesh):
     y_emu_grid_for_interpolation   = emu_mesh[:,:,:,1][indices_r_emu_grid_in_nsm_simulation_domain]
     z_emu_grid_for_interpolation   = emu_mesh[:,:,:,2][indices_r_emu_grid_in_nsm_simulation_domain]
 
+    print(f'There are {len(r_emu_grid.flatten())} points in EMU grid')
+    print(f'{len(r_emu_grid_for_interpolation)} where taken for interpolation')
+
     # EMU grid points in Cartesian coordinates where interpolation will be performed.
     emu_grid_for_interpolation = np.stack( ( x_emu_grid_for_interpolation , y_emu_grid_for_interpolation , z_emu_grid_for_interpolation ), axis=-1)
 
     # Compute the radial bin in NSM data of EMU grid points.
     ln_r_emu_grid_for_interpolation  = np.log( r_emu_grid_for_interpolation )
-    ln_r_emu_grid_float_index = ( ln_r_emu_grid_for_interpolation - lnr_start ) / delta_ln_r
+    ln_r_emu_grid_float_index = np.abs( ln_r_emu_grid_for_interpolation - lnr_start ) / delta_ln_r
     ln_r_emu_grid_ceil_index = np.ceil(ln_r_emu_grid_float_index)   # The ceil of the scalar x is the smallest integer i, such that i >= x. 
     ln_r_emu_grid_floor_index = np.floor(ln_r_emu_grid_float_index) # The floor of the scalar x is the largest integer i, such that i <= x.
     ln_r_emu_grid_indices = np.stack( ( ln_r_emu_grid_floor_index , ln_r_emu_grid_ceil_index ), axis=-1)
     ln_r_emu_grid_indices = ln_r_emu_grid_indices.astype(int)
-    
+
     # Compute the azimultal bin in NSM data of EMU grid points.
-    phi_emu_grid_float_index = ( phi_emu_grid_for_interpolation - phi_start ) / delta_phi
+    phi_emu_grid_float_index = np.abs( phi_emu_grid_for_interpolation - phi_start ) / delta_phi
     phi_emu_grid_ceil_index = np.ceil(phi_emu_grid_float_index)   # The ceil of the scalar x is the smallest integer i, such that i >= x. 
     phi_emu_grid_floor_index = np.floor(phi_emu_grid_float_index) # The floor of the scalar x is the largest integer i, such that i <= x.
     phi_emu_grid_indices = np.stack( ( phi_emu_grid_floor_index , phi_emu_grid_ceil_index ), axis=-1)
     phi_emu_grid_indices = phi_emu_grid_indices.astype(int)
 
     # This array will save the interpolated values of rho, Ye and T
-    rho_Ye_T_interpolated = np.zeros( ( len(emu_grid_for_interpolation) , 3 ) )
+    T_rho_Ye_interpolated = np.zeros( ( len(emu_grid_for_interpolation) , 3 ) )
     
     # Looping over all EMU grid point and perform interpolation
     for i in range(len(emu_grid_for_interpolation)):
@@ -134,14 +144,14 @@ def interpolate_Ye_rho_T(emu_mesh):
 
         if ( minus_r_idx == plus_r_idx ):
             # If an EMU grid point is exactly between two radial bins, consider both bins for interpolation.
-            minus_r_idx -= 1
+            minus_r_idx -= 0
             plus_r_idx  += 1 
 
         if ( minus_phi_idx == plus_phi_idx ):
             # If an EMU grid point is exactly between two azimultal bins, consider both bins for interpolation.
-            minus_phi_idx -= 1
-            plus_phi_idx
-        
+            minus_phi_idx -= 0
+            plus_phi_idx  += 1 
+
         # To perform faster interpolation, reduce the NSM data set to the radial and azimuthal bin where the EMU grid point is located.
         x_for_interpolation   = x_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
         y_for_interpolation   = y_cartesian_coordinates[ minus_r_idx : plus_r_idx + 1 , : , minus_phi_idx : plus_phi_idx + 1 ].flatten()
@@ -154,6 +164,6 @@ def interpolate_Ye_rho_T(emu_mesh):
         grid_for_interpolation = np.stack( ( x_for_interpolation , y_for_interpolation , z_for_interpolation ) , axis=-1 )
         
         # Perform interpolation
-        rho_Ye_T_interpolated[i] = interpolate(grid_for_interpolation, T_for_interpolation, rho_for_interpolation, Ye_for_interpolation, emu_grid_for_interpolation[i])
+        T_rho_Ye_interpolated[i] = interpolate(grid_for_interpolation, T_for_interpolation, rho_for_interpolation, Ye_for_interpolation, emu_grid_for_interpolation[i])
 
-    return indices_r_emu_grid_in_nsm_simulation_domain , rho_Ye_T_interpolated
+    return indices_r_emu_grid_in_nsm_simulation_domain , T_rho_Ye_interpolated
