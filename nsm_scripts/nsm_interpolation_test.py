@@ -39,21 +39,21 @@ indices, T_rho_Ye = nsm_rho_Ye_T_interpolator.interpolate_Ye_rho_T(NSM_grid_cart
 end = time.time()
 print(f'Interpolation time = {end - start} s')
 
-T = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999 ) # array of size (ncellsx, ncellsy, ncellsz)
-rho = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999 ) # array of size (ncellsx, ncellsy, ncellsz)
-Ye = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999 ) # array of size (ncellsx, ncellsy, ncellsz)
+T = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999.0 ) # array of size (ncellsx, ncellsy, ncellsz)
+rho = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999.0 ) # array of size (ncellsx, ncellsy, ncellsz)
+Ye = np.full( ( r_max_bin - r_min_bin , theta_max_bin - theta_min_bin , phi_max_bin - phi_min_bin ), 18081999.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 
-T[indices] = T_rho_Ye[:,0]
+T[indices]   = T_rho_Ye[:,0]
 rho[indices] = T_rho_Ye[:,1]
-Ye[indices] = T_rho_Ye[:,2]
+Ye[indices]  = T_rho_Ye[:,2]
 
-indices_no_interpolation_T = np.where( T == 18081999 )
-indices_no_interpolation_rho = np.where( rho == 18081999 ) 
-indices_no_interpolation_Ye = np.where( Ye == 18081999 )
+indices_no_interpolation_T = np.where( T == 18081999.0 )
+indices_no_interpolation_rho = np.where( rho == 18081999.0 ) 
+indices_no_interpolation_Ye = np.where( Ye == 18081999.0 )
 
-print(f'{len(indices_no_interpolation_T[0])} T points were not interpolated')
-print(f'{len(indices_no_interpolation_rho[0])} rho points were not interpolated')
-print(f'{len(indices_no_interpolation_Ye[0])} Ye points were not interpolated')
+print(f'Warnings: {len(indices_no_interpolation_T[0])} T points were not interpolated')
+print(f'Warnings: {len(indices_no_interpolation_rho[0])} rho points were not interpolated')
+print(f'Warnings: {len(indices_no_interpolation_Ye[0])} Ye points were not interpolated')
 
 # Getting index of Ye and rho in NSM data
 index_Ye = np.where(dump_file['P'].attrs['vnams'] == 'Ye')[0][0]
@@ -67,9 +67,9 @@ rho_NSM = rho_NSM[ r_min_bin : r_max_bin , theta_min_bin : theta_max_bin , phi_m
 T_NSM = dump_file['TEMP'] # MeV
 T_NSM = T_NSM[ r_min_bin : r_max_bin , theta_min_bin : theta_max_bin , phi_min_bin : phi_max_bin ]
 
-T_NSM  [indices_no_interpolation_T] = 18081999
-rho_NSM[indices_no_interpolation_rho] = 18081999
-Ye_NSM [indices_no_interpolation_Ye] = 18081999
+T_NSM  [indices_no_interpolation_T] = 18081999.0
+rho_NSM[indices_no_interpolation_rho] = 18081999.0
+Ye_NSM [indices_no_interpolation_Ye] = 18081999.0
 
 print(f'rho test ---> Average relative error = { np.average( np.abs( rho - rho_NSM ) / rho_NSM ) }')
 print(f'T test   ---> Average relative error = { np.average( np.abs( T   - T_NSM   ) / T_NSM   )}')
