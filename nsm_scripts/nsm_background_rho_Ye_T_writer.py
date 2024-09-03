@@ -22,20 +22,24 @@ ymax =  4.0e+08 #cm
 zmin = -4.0e+08 #cm 
 zmax =  4.0e+08 #cm 
 
+# Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
 
 start = time.time()
+# Perform interpolation
 indices, T_rho_Ye = nsm_rho_Ye_T_interpolator.interpolate_Ye_rho_T(mesh)
 end = time.time()
 print(f'Interpolation time = {end - start} s')
 
+# Create arrays to store the interpolated values of T, rho, and Ye.
 rho = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 T = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 Ye = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, ncellsy, ncellsz)
 
-T[indices] = T_rho_Ye[:,0]
+# Store the interpolated values of T, rho, and Ye.
+T[indices]   = T_rho_Ye[:,0]
 rho[indices] = T_rho_Ye[:,1]
-Ye[indices] = T_rho_Ye[:,2]
+Ye[indices]  = T_rho_Ye[:,2]
 
 # Write hdf5 file with all the data
 with h5py.File('rho_Ye_T.hdf5', 'w') as hdf:
