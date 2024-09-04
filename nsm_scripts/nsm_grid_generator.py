@@ -36,7 +36,7 @@ def create_grid(cell_numbers, dimensions):
 
     # Combine the 3D mesh grid into a single array 'mesh' for easy access
     # 'mesh' will be a 3D array containing the X, Y, and Z coordinates of the grid
-    mesh = np.array([X, Y, Z])
+    mesh = np.stack((X, Y, Z), axis=-1)
 
     # Return the grid point centers and the mesh grid
     return centers, mesh
