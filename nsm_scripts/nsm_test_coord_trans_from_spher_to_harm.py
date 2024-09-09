@@ -55,7 +55,7 @@ for i in range(r_1.shape[0]):
     for j in range(r_1.shape[1]):
         for k in range(r_1.shape[2]):
             #Perform interpolation
-            interpolation_result = nsm_coord_trans_from_spher_to_harm.from_cart_to_harm_tranformation( r_spherical_coordinates[i,j,k] , theta_spherical_coordinates[i,j,k] , phi_spherical_coordinates[i,j,k] )
+            interpolation_result = nsm_coord_trans_from_spher_to_harm.from_cart_to_harm_tranformation( ( r_spherical_coordinates[i,j,k] , theta_spherical_coordinates[i,j,k] , phi_spherical_coordinates[i,j,k] ) )
             interpolation_difference.append(np.abs(interpolation_result - harm_points[i,j,k]))
 
 # Cutting data to loop
@@ -66,7 +66,7 @@ for i in range(r_1.shape[0]):
     for j in range(r_1.shape[1]):
         for k in range(r_1.shape[2]):
             #Perform interpolation
-            interpolation_result = nsm_coord_trans_from_spher_to_harm.from_cart_to_harm_tranformation( r_spherical_coordinates[i,j,k] , theta_spherical_coordinates[i,j,k] , phi_spherical_coordinates[i,j,k] )
+            interpolation_result = nsm_coord_trans_from_spher_to_harm.from_cart_to_harm_tranformation( ( r_spherical_coordinates[i,j,k] , theta_spherical_coordinates[i,j,k] , phi_spherical_coordinates[i,j,k] ) )
             interpolation_difference.append(np.abs(interpolation_result - harm_points[i,j,k]))
 
 # Convert to np array
