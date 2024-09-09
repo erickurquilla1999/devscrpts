@@ -70,8 +70,14 @@ def from_cart_to_harm_tranformation(r, theta, phi):
         # Return fx to find the root (we want fx = 0).
         return fx
 
-    # Find the root of the helper function f which corresponds to X2.
-    X2 = bisect(f, 0.0, 1.0)
+    try:
+        # Find the root of the helper function f which corresponds to X2.
+        X2 = bisect(f, -0.99, 1.01)
+    except Exception as e:
+        # Print error if interpolation fails
+        print(f"Interpolation failed: {e}. Point = ( {r:.3e} , {theta:.3e} , {phi:.3e} ) ")
+        # Set a default value if solver fails
+        X2 = 18081999.0
 
     # Return the harmonic coordinates (X1, X2, X3).
     return [ X1 , X2 , X3 ]
