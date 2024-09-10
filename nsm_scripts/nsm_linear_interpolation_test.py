@@ -15,8 +15,8 @@ dump_file = h5py.File('dump_00001000.h5','r')
 grid_file = h5py.File('grid.h5','r')
 
 # NSM grid will be split in radial, theta and phi bins accordingly to this values
-min_bin = 0 # Start taking grid points in this bin
-max_bin = 4 # Stop taking grid points in this bin
+min_bin = 1 # Start taking grid points in this bin
+max_bin = 40 # Stop taking grid points in this bin
 
 # getting NSM simulation grid in cartesian coordinates system
 grid_cartesian = grid_file['Xcart'] * np.array(dump_file['L_unit']) # cm

@@ -37,14 +37,13 @@ def interpolate(data):
     Given data for the coordinates and grid values, this function will interpolate 
     the temperature, density, and electron fraction at the specified interpolation point.
     """
-  
-    interpolation_point = data[0]
-    x = data[1]
-    y = data[2]
-    z = data[3]
-    T = data[4]
-    rho = data[5]
-    Ye = data[6]
+    interpolation_point = data[0] # The coordinates of the interpolation point (list or array-like).
+    x = data[1] # The x-coordinates for the regular grid (1D array).
+    y = data[2] # The y-coordinates for the regular grid (1D array).
+    z = data[3] # The z-coordinates for the regular grid (1D array).
+    T = data[4] # The temperature values defined on the (x, y, z) grid (3D array).
+    rho = data[5] # The density values defined on the (x, y, z) grid (3D array).
+    Ye = data[6] # The electron fraction (Ye) values defined on the (x, y, z) grid (3D array).
 
     try:
       
@@ -64,7 +63,7 @@ def interpolate(data):
 
       # Print error if interpolation fails
       print(f"Interpolation failed: {e}. \n{interpolation_point} = point \n{x} = x \n{y} = y \n{z} = z")
-      
+
       # Return the interpolated values as a list
       return [ 18081999.0 , 18081999.0 , 18081999.0 ]
 
@@ -90,9 +89,9 @@ def interpolate_Ye_rho_T(emu_mesh):
     index_rho = np.where(dump_file['P'].attrs['vnams'] == 'RHO')[0][0]
 
     # Getting Ye, rho, T in NSM data
-    Ye = dump_file['P'][:,:,:,index_Ye] # no units
-    rho = dump_file['P'][:,:,:,index_rho] * dump_file['RHO_unit'] # g / ccm
-    T = dump_file['TEMP'] # MeV
+    Ye = np.array(dump_file['P'][:,:,:,index_Ye]) # no units
+    rho = np.array(dump_file['P'][:,:,:,index_rho] * dump_file['RHO_unit']) # g / ccm
+    T = np.array(dump_file['TEMP']) # MeV
 
     # getting NSM simulation grid in harm coordinates system
     grid_harm  = grid_file['Xharm']
@@ -201,57 +200,76 @@ def interpolate_Ye_rho_T(emu_mesh):
     # List to store interpolation data for each point in the EMU mesh to be interpolated.
     inderpolation_data = [None] * number_interpolation_points
 
-    def get_indices(closer_index, i):
+    # Function to extract a subarray with periodic boundary conditions
+    def extract_periodic_subarray(arr, i_range, j_range, k_range):
         """
-        Determines the neighboring indices for interpolation based on the value 
-        of the current index `i` in the `closer_index` array.
+        Extracts a subarray from a 3D array with periodic boundary conditions.
 
         Parameters:
-        closer_index (list or array): A list or array containing indices.
-        i (int): The current index in the `closer_index` array for which neighboring
-                indices need to be determined.
+        arr (np.ndarray): Input 3D array of shape (n, m, p).
+        i_range (array-like): Range of indices along the first dimension (n).
+        j_range (array-like): Range of indices along the second dimension (m).
+        k_range (array-like): Range of indices along the third dimension (p).
 
         Returns:
-        list: A list of two values representing the neighboring indices:
-              - If the current index is the first element (0), returns [0, 3].
-              - If the current index is the last element, returns [-3, None].
-              - Otherwise, returns the indices just before and after the current index.
+        np.ndarray: The extracted subarray with periodic boundary conditions.
         """
-        
-        # Check if the current index is the first element in the array
-        if closer_index[i] == 0:
-            # If the first element, return [0, 3] as the neighboring indices
-            return [0, 3]
-        
-        # Check if the current index is the last element in the array
-        elif closer_index[i] == len(closer_index) - 1:
-            # If the last element, return [-3, None] as the neighboring indices
-            return [-3, None]
-        
-        # For any other case, return the previous and next indices
-        else:
-            return [closer_index[i] - 1, closer_index[i] + 2]
+        # Get the shape of the input array
+        n, m, p = arr.shape
+
+        # Wrap indices around using modulo to ensure periodicity
+        i_indices = np.mod(i_range, n)
+        j_indices = np.mod(j_range, m)
+        k_indices = np.mod(k_range, p)
+
+        # Use np.ix_ to extract the subarray
+        return arr[np.ix_(i_indices, j_indices, k_indices)]
 
     # Looping over X1_closer_index 
     for i in range( number_interpolation_points ):
 
-      # Initialize neighboring indices as None
-      X1_indices = [None,None]
-      X2_indices = [None,None]
-      X3_indices = [None,None]
+      # Get neighboring indices for X1
+      # Check if the current index is the first element in the array
+      if X1_closer_index[i] == 0:
+          # If the first element, return [0, 3] as the neighboring indices
+          X1_indices = [0,1,2]
+      
+      # Check if the current index is the last element in the array
+      elif X1_closer_index[i] == len(X1_closer_index) - 1:
+          # If the last element, return [-3, None] as the neighboring indices
+          X1_indices = [-3,-2,-1]
+      
+      # For any other case, return the previous and next indices
+      else:
+          X1_indices = [X1_closer_index[i] - 1, X1_closer_index[i] , X1_closer_index[i] + 1 ]
 
-      # Get neighboring indices
-      X1_indices = get_indices(X1_closer_index, i)
-      X2_indices = get_indices(X2_closer_index, i)
-      X3_indices = get_indices(X3_closer_index, i)
+      # Get neighboring indices for X2
+      X2_indices = [ X2_closer_index[i] - 1 , X2_closer_index[i] , X2_closer_index[i] + 1 ]
+      X2_indices = np.mod(X2_indices, X2_NSM.shape[0])
 
-      # Trim data arrays to get only points close to the interpolation point 
-      X1_interpolation = X1_NSM[X1_indices[0]:X1_indices[1]]
-      X2_interpolation = X2_NSM[X2_indices[0]:X2_indices[1]]
-      X3_interpolation = X3_NSM[X3_indices[0]:X3_indices[1]]
-      T_interpolation   = T  [ X1_indices[0]:X1_indices[1] , X2_indices[0]:X2_indices[1] , X3_indices[0]:X3_indices[1] ]
-      rho_interpolation = rho[ X1_indices[0]:X1_indices[1] , X2_indices[0]:X2_indices[1] , X3_indices[0]:X3_indices[1] ]
-      Ye_interpolation  = Ye [ X1_indices[0]:X1_indices[1] , X2_indices[0]:X2_indices[1] , X3_indices[0]:X3_indices[1] ]
+      # Get neighboring indices for X3
+      X3_indices = [ X3_closer_index[i] - 1 , X3_closer_index[i] , X3_closer_index[i] + 1 ]
+      X3_indices = np.mod(X3_indices, X3_NSM.shape[0])
+
+      # Trim X1 arrays to get only points close to the interpolation point 
+      X1_interpolation = X1_NSM[X1_indices]
+      X2_interpolation = X2_NSM[X2_indices]
+      X3_interpolation = X3_NSM[X3_indices]
+
+      if X2_indices[1] == 0 :
+        X2_interpolation[0] -= 1.0
+      elif X2_indices[1] == ( X2_NSM.shape[0] - 1 ) :
+        X2_interpolation[2] += 1.0         
+
+      if X3_indices[1] == 0 :
+        X3_interpolation[0] -= 2.0 * np.pi
+      elif X3_indices[1] == ( X3_NSM.shape[0] - 1 ) :
+        X3_interpolation[2] += 2.0 * np.pi
+
+      # Trim T, rho and Ye arrays to get only points close to the interpolation point 
+      T_interpolation   = extract_periodic_subarray(T, X1_indices, X2_indices, X3_indices)
+      rho_interpolation = extract_periodic_subarray(rho, X1_indices, X2_indices, X3_indices)
+      Ye_interpolation  = extract_periodic_subarray(Ye, X1_indices, X2_indices, X3_indices)
 
       # Save interpolation data
       inderpolation_data[i] = [ [ X1_emu[i], X2_emu[i], X3_emu[i] ] , X1_interpolation , X2_interpolation , X3_interpolation , T_interpolation , rho_interpolation , Ye_interpolation ]

@@ -8,26 +8,26 @@ The data files dump_00001000.h5 and grid.h5 should be in the same directory as t
 import numpy as np
 import h5py
 import nsm_grid_generator
-import nsm_rho_Ye_T_interpolator
+import nsm_rho_Ye_T_linear_interpolator
 import time
 
 # EMU grid parameters
-ncellsx = 11 # scalar, number of cells in x-direction
-ncellsy = 11 # scalar, number of cells in y-direction
-ncellsz = 11 # scalar, number of cells in z-direction
-xmin = -4.0e+08 #cm 
-xmax =  4.0e+08 #cm 
-ymin = -4.0e+08 #cm 
-ymax =  4.0e+08 #cm 
-zmin = -4.0e+08 #cm 
-zmax =  4.0e+08 #cm 
+ncellsx = 100 # scalar, number of cells in x-direction
+ncellsy = 100 # scalar, number of cells in y-direction
+ncellsz = 100 # scalar, number of cells in z-direction
+xmin =  -8.0e6 #cm
+xmax =  +8.0e6 #cm
+ymin = -8.0e6 #cm
+ymax = +8.0e6 #cm
+zmin = -8.0e6 #cm
+zmax = +8.0e6 #cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
 
 start = time.time()
 # Perform interpolation
-indices, T_rho_Ye = nsm_rho_Ye_T_interpolator.interpolate_Ye_rho_T(mesh)
+indices, T_rho_Ye = nsm_rho_Ye_T_linear_interpolator.interpolate_Ye_rho_T(mesh)
 end = time.time()
 print(f'Interpolation time = {end - start} s')
 
