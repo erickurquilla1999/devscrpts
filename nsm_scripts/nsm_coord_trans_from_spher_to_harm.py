@@ -80,8 +80,8 @@ def from_cart_to_harm_tranformation(coords):
         # Find the root of the helper function f which corresponds to X2.
         X2 = bisect(f, -0.01, 1.01)
     except Exception as e:
-        # Print error if interpolation fails
-        print(f"Interpolation failed: {e}. Point = ( {r:.3e} , {theta:.3e} , {phi:.3e} ) ")
+        # Print error if coordinate transformation fails
+        print(f"Coordinate transformation failed: {e}. Point = ( {r:.3e} , {theta:.3e} , {phi:.3e} ) ")
         # Set a default value if solver fails
         X2 = 18081999.0
 
