@@ -259,7 +259,7 @@ apply_custom_settings(ax, leg)
 ax.set_xlabel(r'$t$ (s)')
 ax.set_ylabel(r'$\bar{N}$ and $\vec{\bar{F}}$')
 ax.set_yscale('log')
-fig.savefig('Nbar_and_Fbar.pdf',bbox_inches='tight')
+fig.savefig('Nbareu_and_Fbareu.pdf',bbox_inches='tight')
 plt.clf()
 
 # Plots Nbar_ee and Fbar_ee
