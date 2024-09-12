@@ -52,6 +52,6 @@ with h5py.File('rho_Ye_T.hdf5', 'w') as hdf:
     hdf.create_dataset("ymax_cm", data=ymax)
     hdf.create_dataset("zmin_cm", data=zmin)
     hdf.create_dataset("zmax_cm", data=zmax)
-    hdf.create_dataset("rho_g/ccm", data=rho)
+    hdf.create_dataset("rho_g|ccm", data=rho)
     hdf.create_dataset("T_Mev", data=T)
     hdf.create_dataset("Ye", data=Ye)
