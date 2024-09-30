@@ -9,23 +9,27 @@ import h5py
 import nsm_grid_generator
 
 # EMU grid parameters
-ncellsx = 10 # scalar, number of cells in x-direction
-ncellsy = 15 # scalar, number of cells in y-direction
-ncellsz = 20 # scalar, number of cells in z-direction
-xmin =  0 #cm
-xmax =  10 #cm
-ymin = 0 #cm
-ymax = 15 #cm
-zmin = 0 #cm
-zmax = 20 #cm
+ncellsx = 2 # scalar, number of cells in x-direction
+ncellsy = 2 # scalar, number of cells in y-direction
+ncellsz = 2 # scalar, number of cells in z-direction
+xmin =  0.0 #cm
+xmax =  2.0e4 #cm
+ymin = 0.0 #cm
+ymax = 2.0e4 #cm
+zmin = 0.0 #cm
+zmax = 2.0e4 #cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
 
+rho_cons = 1802418929.1457505 # g/ccm
+T_cons   = 5.0246353 # MeV
+Ye_cons  = 0.46005958 # n_electron - n_positron / n_barions
+
 # Create arrays to store the interpolated values of T, rho, and Ye.
-rho = np.full( ( ncellsx, ncellsy, ncellsz ), 1.0 ) # array of size (ncellsx, ncellsy, ncellsz)
-T = np.full( ( ncellsx, ncellsy, ncellsz ), 2.0 ) # array of size (ncellsx, ncellsy, ncellsz)
-Ye = np.full( ( ncellsx, ncellsy, ncellsz ), 3.0 ) # array of size (ncellsx, ncellsy, ncellsz)
+rho = np.full( ( ncellsx, ncellsy, ncellsz ), rho_cons ) # array of size (ncellsx, ncellsy, ncellsz)
+T   = np.full( ( ncellsx, ncellsy, ncellsz ), T_cons ) # array of size (ncellsx, ncellsy, ncellsz)
+Ye  = np.full( ( ncellsx, ncellsy, ncellsz ), Ye_cons ) # array of size (ncellsx, ncellsy, ncellsz)
 
 # Write hdf5 file with all the data
 with h5py.File('rho_Ye_T.hdf5', 'w') as hdf:
