@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 n_flavors = np.loadtxt('particle_input.dat', max_rows=1) # read number of flavor of particles in the initial condition script
 data = np.array(np.loadtxt('particle_input.dat', skiprows=1)) # read particles initial condition
 
-# This script works only for 2-flavor simulations
+# This script works only for 2-flavor simulations.
 assert n_flavors == 2, 'This script works only for 2-flavor simulations'
 
 E = data[...,3][0] # energy
