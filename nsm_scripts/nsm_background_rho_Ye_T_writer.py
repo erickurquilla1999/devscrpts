@@ -12,15 +12,15 @@ import nsm_rho_Ye_T_linear_interpolator
 import time
 
 # EMU grid parameters
-ncellsx = 100 # scalar, number of cells in x-direction
-ncellsy = 100 # scalar, number of cells in y-direction
-ncellsz = 100 # scalar, number of cells in z-direction
-xmin =  -8.0e6 #cm
-xmax =  +8.0e6 #cm
-ymin = -8.0e6 #cm
-ymax = +8.0e6 #cm
-zmin = -8.0e6 #cm
-zmax = +8.0e6 #cm
+ncellsx = 20 # scalar, number of cells in x-direction
+ncellsy = 20 # scalar, number of cells in y-direction
+ncellsz = 20 # scalar, number of cells in z-direction
+xmin = -1.5e6 #cm
+xmax = +1.5e6 #cm
+ymin = -1.5e6 #cm
+ymax = +1.5e6 #cm
+zmin = -1.5e6 #cm
+zmax = +1.5e6 #cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
@@ -40,6 +40,20 @@ Ye = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, nce
 T[indices]   = T_rho_Ye[:,0]
 rho[indices] = T_rho_Ye[:,1]
 Ye[indices]  = T_rho_Ye[:,2]
+
+# Ensure that all components of T, rho, and Ye are within the specified limits
+
+# Nulib table limits
+rhomin  = 1.00000e+06 # g/cm^3
+rhomax  = 3.16228e+15 # g/cm^3
+tempmin  = 0.0500 # MeV
+tempmax  = 150.0000 # MeV
+yemin  = 0.0350
+yemax  = 0.5500
+
+T = np.clip(T, tempmin, tempmax)
+rho = np.clip(rho, rhomin, rhomax)
+Ye = np.clip(Ye, yemin, yemax)
 
 # Write hdf5 file with all the data
 with h5py.File('rho_Ye_T.hdf5', 'w') as hdf:
