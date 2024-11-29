@@ -12,15 +12,17 @@ import nsm_rho_Ye_T_linear_interpolator
 import time
 
 # EMU grid parameters
-ncellsx = 40 # scalar, number of cells in x-direction
-ncellsy = 40 # scalar, number of cells in y-direction
-ncellsz = 10 # scalar, number of cells in z-direction
-xmin = -1.5e6 #cm
-xmax = +1.5e6 #cm
-ymin = -1.5e6 #cm
-ymax = +1.5e6 #cm
-zmin = -1.5e6/4 #cm
-zmax = +1.5e6/4 #cm
+# The following domain is optimal for the use
+# of the LS220 EoS and the NuLib SFH EoS
+ncellsx = 100 # scalar, number of cells in x-direction
+ncellsy = 100 # scalar, number of cells in y-direction
+ncellsz = 20 # scalar, number of cells in z-direction
+xmin = -50.0e5 #cm
+xmax = +50.0e5 #cm
+ymin = -50.0e5 #cm
+ymax = +50.0e5 #cm
+zmin = -10.0e5 #cm
+zmax = +10.0e5 #cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
