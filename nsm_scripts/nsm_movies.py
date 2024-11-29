@@ -29,6 +29,7 @@ mpl.rc('text', usetex=True)
 mpl.rcParams['xtick.major.width'] = 2
 mpl.rcParams['xtick.major.pad'] = 8
 mpl.rcParams['xtick.minor.size'] = 4
+
 mpl.rcParams['xtick.minor.width'] = 2
 mpl.rcParams['ytick.major.size'] = 7
 mpl.rcParams['ytick.major.width'] = 2
@@ -75,18 +76,28 @@ bh_center_z = 1.5e6 # cm
 file_path = './allData.h5'
 with h5py.File(file_path, 'r') as file:
     datasets = list(file.keys())
-    print("Datasets in the file:", datasets)
-    N_00_Re = file['N00_Re(1|ccm)'][:]  # Adjust the dataset path as needed
-    Fx00_Re = file['Fx00_Re(1|ccm)'][:]
-    Fy00_Re = file['Fy00_Re(1|ccm)'][:]
-    Fz00_Re = file['Fz00_Re(1|ccm)'][:]
-    time = file['t(s)'][:]
-    dx = np.array(file['dx(cm)'])
-    dy = np.array(file['dy(cm)'])
-    dz = np.array(file['dz(cm)'])
-    Nx = np.array(file['Nx'])
-    Ny = np.array(file['Ny'])
-    Nz = np.array(file['Nz'])
+    data_dict = {}
+    for dataset in datasets:
+        data_dict[dataset] = np.array(file[dataset])
+   
+    data_labels_2flavors = ['Fx00_Re(1|ccm)', 'Fx00_Rebar(1|ccm)', 'Fx01_Im(1|ccm)', 'Fx01_Imbar(1|ccm)', 'Fx01_Re(1|ccm)', 'Fx01_Rebar(1|ccm)', 'Fx11_Re(1|ccm)', 'Fx11_Rebar(1|ccm)', 'Fy00_Re(1|ccm)', 'Fy00_Rebar(1|ccm)', 'Fy01_Im(1|ccm)', 'Fy01_Imbar(1|ccm)', 'Fy01_Re(1|ccm)', 'Fy01_Rebar(1|ccm)', 'Fy11_Re(1|ccm)', 'Fy11_Rebar(1|ccm)', 'Fz00_Re(1|ccm)', 'Fz00_Rebar(1|ccm)', 'Fz01_Im(1|ccm)', 'Fz01_Imbar(1|ccm)', 'Fz01_Re(1|ccm)', 'Fz01_Rebar(1|ccm)', 'Fz11_Re(1|ccm)', 'Fz11_Rebar(1|ccm)', 'N00_Re(1|ccm)', 'N00_Rebar(1|ccm)', 'N01_Im(1|ccm)', 'N01_Imbar(1|ccm)', 'N01_Re(1|ccm)', 'N01_Rebar(1|ccm)', 'N11_Re(1|ccm)', 'N11_Rebar(1|ccm)', 'Nx', 'Ny', 'Nz', 'dx(cm)', 'dy(cm)', 'dz(cm)', 'it', 't(s)']
+    data_labels_3flavors = ['Fx00_Re(1|ccm)', 'Fx00_Rebar(1|ccm)', 'Fx01_Im(1|ccm)', 'Fx01_Imbar(1|ccm)', 'Fx01_Re(1|ccm)', 'Fx01_Rebar(1|ccm)', 'Fx02_Im(1|ccm)', 'Fx02_Imbar(1|ccm)', 'Fx02_Re(1|ccm)', 'Fx02_Rebar(1|ccm)', 'Fx11_Re(1|ccm)', 'Fx11_Rebar(1|ccm)', 'Fx12_Im(1|ccm)', 'Fx12_Imbar(1|ccm)', 'Fx12_Re(1|ccm)', 'Fx12_Rebar(1|ccm)', 'Fx22_Re(1|ccm)', 'Fx22_Rebar(1|ccm)', 'Fy00_Re(1|ccm)', 'Fy00_Rebar(1|ccm)', 'Fy01_Im(1|ccm)', 'Fy01_Imbar(1|ccm)', 'Fy01_Re(1|ccm)', 'Fy01_Rebar(1|ccm)', 'Fy02_Im(1|ccm)', 'Fy02_Imbar(1|ccm)', 'Fy02_Re(1|ccm)', 'Fy02_Rebar(1|ccm)', 'Fy11_Re(1|ccm)', 'Fy11_Rebar(1|ccm)', 'Fy12_Im(1|ccm)', 'Fy12_Imbar(1|ccm)', 'Fy12_Re(1|ccm)', 'Fy12_Rebar(1|ccm)', 'Fy22_Re(1|ccm)', 'Fy22_Rebar(1|ccm)', 'Fz00_Re(1|ccm)', 'Fz00_Rebar(1|ccm)', 'Fz01_Im(1|ccm)', 'Fz01_Imbar(1|ccm)', 'Fz01_Re(1|ccm)', 'Fz01_Rebar(1|ccm)', 'Fz02_Im(1|ccm)', 'Fz02_Imbar(1|ccm)', 'Fz02_Re(1|ccm)', 'Fz02_Rebar(1|ccm)', 'Fz11_Re(1|ccm)', 'Fz11_Rebar(1|ccm)', 'Fz12_Im(1|ccm)', 'Fz12_Imbar(1|ccm)', 'Fz12_Re(1|ccm)', 'Fz12_Rebar(1|ccm)', 'Fz22_Re(1|ccm)', 'Fz22_Rebar(1|ccm)', 'N00_Re(1|ccm)', 'N00_Rebar(1|ccm)', 'N01_Im(1|ccm)', 'N01_Imbar(1|ccm)', 'N01_Re(1|ccm)', 'N01_Rebar(1|ccm)', 'N02_Im(1|ccm)', 'N02_Imbar(1|ccm)', 'N02_Re(1|ccm)', 'N02_Rebar(1|ccm)', 'N11_Re(1|ccm)', 'N11_Rebar(1|ccm)', 'N12_Im(1|ccm)', 'N12_Imbar(1|ccm)', 'N12_Re(1|ccm)', 'N12_Rebar(1|ccm)', 'N22_Re(1|ccm)', 'N22_Rebar(1|ccm)', 'Nx', 'Ny', 'Nz', 'dx(cm)', 'dy(cm)', 'dz(cm)', 'it', 't(s)']
+    
+    if len(datasets) == len(data_labels_2flavors):
+        data_labels = data_labels_2flavors
+        n_flavors = 2
+    elif len(datasets) == len(data_labels_3flavors):
+        data_labels = data_labels_3flavors
+        n_flavors = 3
+    else:
+        raise ValueError('The number of datasets in the file does not match any of the expected values.')
+
+    dx = data_dict['dx(cm)']
+    dy = data_dict['dy(cm)']
+    dz = data_dict['dz(cm)']
+    Nx = data_dict['Nx']
+    Ny = data_dict['Ny']
+    Nz = data_dict['Nz']
 
     # cell faces
     x = np.linspace(0, dx * Nx, Nx + 1)
@@ -101,53 +112,40 @@ with h5py.File(file_path, 'r') as file:
     # cell centers mesh
     Xc, Yc, Zc = np.meshgrid(xc, yc, zc, indexing='ij')
 
-    os.makedirs('./frames_f_00', exist_ok=True)
-    os.makedirs('./frames_n_00', exist_ok=True)
-
-    for time_index in range(len(time)):
-
+    # Function to plot the neutrino densities
+    def plotting_densities(x_up, y_up, z_up, x_down, y_down, z_down, min_color_bar, max_color_bar, color_bar_label, file_name, frame_index):
+            
         # Create the figure and subplots with shared x-axis
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
 
-        min_nee = np.min([np.min(N_00_Re), np.min(N_00_Re)])
-        max_nee = np.max([np.max(N_00_Re), np.max(N_00_Re)])
-
         # Plot neutrino data for the y-z plane
-        c1 = ax1.pcolormesh(Xc[:, :, 10], Yc[:, :, 10], N_00_Re[time_index, :, :, 10], shading='auto', cmap='viridis', vmin=min_nee, vmax=max_nee)
+        if max_color_bar == min_color_bar:
+            max_color_bar += 1
+            min_color_bar -= 1
 
-        # Plot the mesh grid
-        # ax1.plot(X[:, :, 10], Y[:, :, 10], color='gray', linestyle='-', linewidth=0.5)
-        # ax1.plot(X[:, :, 10].T, Y[:, :, 10].T, color='gray', linestyle='-', linewidth=0.5)
+        c1 = ax1.pcolormesh(x_up, y_up, z_up, shading='auto', cmap='viridis', vmin=min_color_bar, vmax=max_color_bar)
+        c2 = ax2.pcolormesh(x_down, y_down, z_down, shading='auto', cmap='viridis', vmin=min_color_bar, vmax=max_color_bar)
 
         # Draw a circle representing the black hole in the y-z plane
         circle1 = plt.Circle((bh_center_x, bh_center_y), bh_radius, color='black')
-        ax1.add_patch(circle1)
-
-        # Plot settings for the y-z plane
-        ax1.set_ylabel(r'$y \, (\mathrm{cm})$')
-
-        leg1 = ax1.legend(framealpha=0.0, ncol=1, fontsize=10)
-        apply_custom_settings(ax1, leg1, False)
-
-        # Plot neutrino data for the x-z plane
-        c2 = ax2.pcolormesh(Xc[:, 10, :], Zc[:, 10, :], N_00_Re[time_index, :, 10, :], shading='auto', cmap='viridis', vmin=min_nee, vmax=max_nee)
-
-        # Plot the mesh grid for the x-z plane
-        # ax2.plot(X[:, 10, :], Z[:, 10, :], color='gray', linestyle='-', linewidth=0.5)
-        # ax2.plot(X[:, 10, :].T, Z[:, 10, :].T, color='gray', linestyle='-', linewidth=0.5)
-
-        # Draw a circle representing the black hole in the x-z plane
         circle2 = plt.Circle((bh_center_x, bh_center_z), bh_radius, color='black')
+        ax1.add_patch(circle1)
         ax2.add_patch(circle2)
 
-        # Plot settings for the x-z plane
+        # Plot settings for the y-z plane
         ax2.set_xlabel(r'$x \, (\mathrm{cm})$')
+        ax1.set_ylabel(r'$y \, (\mathrm{cm})$')
         ax2.set_ylabel(r'$z \, (\mathrm{cm})$')
+
+        leg1 = ax1.legend(framealpha=0.0, ncol=1, fontsize=10)
+        leg2 = ax2.legend(framealpha=0.0, ncol=1, fontsize=10)
+        apply_custom_settings(ax1, leg1, False)
+        apply_custom_settings(ax2, leg2, False)
 
         # Share a single color bar for both plots
         fig.subplots_adjust(right=0.85, hspace=0)  # Set hspace to 0 to remove the white space
         cbar_ax = fig.add_axes([0.82, 0.113, 0.04, 0.76]) # [left, bottom, width, height]
-        cbar = fig.colorbar(c2, cax=cbar_ax, label=r'$n_e \, (\mathrm{cm}^{-3}$)')
+        cbar = fig.colorbar(c2, cax=cbar_ax, label=r'$'+color_bar_label+' \, (\mathrm{cm}^{-3}$)')
         
         # Apply minor ticks to the color bar
         cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -156,72 +154,50 @@ with h5py.File(file_path, 'r') as file:
         ax1.set_aspect('equal', 'box')
         ax2.set_aspect('equal', 'box')
 
-        leg2 = ax2.legend(framealpha=0.0, ncol=1, fontsize=10)
-        apply_custom_settings(ax2, leg2, False)
-
         # Save the figure as a PDF
-        plt.savefig(f'./frames_n_00/n_00_{time_index}.png', bbox_inches='tight')
+        plt.savefig("./"+file_name+"/"+file_name+"_"+str(frame_index)+".png", bbox_inches='tight')
 
+        # Close the figure
         plt.close(fig)
 
+    # Function to plot the neutrino fluxes
+    def plotting_fluxes(x_up, y_up, z_up, vector_field_up, x_down, y_down, z_down, vector_field_down, min_color_bar, max_color_bar, color_bar_label, file_name, frame_index):
+ 
         # Create the figure and subplots with shared x-axis
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
 
-        F_00_mag = np.sqrt(Fx00_Re**2 + Fy00_Re**2 + Fz00_Re**2) 
-
-        F_00 = np.stack((Fx00_Re, Fy00_Re, Fz00_Re), axis=-1)
-
-        Fx_00_unit = np.where(F_00_mag != 0, F_00[:,:,:,:,0] / F_00_mag, 0)
-        Fy_00_unit = np.where(F_00_mag != 0, F_00[:,:,:,:,1] / F_00_mag, 0)
-        Fz_00_unit = np.where(F_00_mag != 0, F_00[:,:,:,:,2] / F_00_mag, 0)
-
-        F_00_for_plot = min(dx,dy,dz) * np.stack((Fx_00_unit, Fy_00_unit, Fz_00_unit), axis=-1)
-
-        min_nee = np.min([np.min(F_00_mag), np.min(F_00_mag)])
-        max_nee = np.max([np.max(F_00_mag), np.max(F_00_mag)])
-
         # Plot neutrino data for the y-z plane
-        c1 = ax1.pcolormesh(Xc[:, :, 10], Yc[:, :, 10], Fy00_Re[time_index, :, :, 10], shading='auto', cmap='viridis', vmin=min_nee, vmax=max_nee)
+        if max_color_bar == min_color_bar:
+            max_color_bar += 1
+            min_color_bar -= 1
 
-        # Plot the arrows of the vector F_00_xy starting in each cell center
-        ax1.quiver(Xc[:, :, 10], Yc[:, :, 10], F_00_for_plot[time_index,:,:,10,0], F_00_for_plot[time_index,:,:,10,1], color='white', scale=1, scale_units='xy', angles='xy')
-
-        # Plot the mesh grid
-        # ax1.plot(X[:, :, 10], Y[:, :, 10], color='gray', linestyle='-', linewidth=0.5)
-        # ax1.plot(X[:, :, 10].T, Y[:, :, 10].T, color='gray', linestyle='-', linewidth=0.5)
+        c1 = ax1.pcolormesh(x_up, y_up, z_up, shading='auto', cmap='viridis', vmin=min_color_bar, vmax=max_color_bar)
+        c2 = ax2.pcolormesh(x_down, y_down, z_down, shading='auto', cmap='viridis', vmin=min_color_bar, vmax=max_color_bar)
 
         # Draw a circle representing the black hole in the y-z plane
         circle1 = plt.Circle((bh_center_x, bh_center_y), bh_radius, color='black')
-        ax1.add_patch(circle1)
-
-        # Plot settings for the y-z plane
-        ax1.set_ylabel(r'$y \, (\mathrm{cm})$')
-
-        leg1 = ax1.legend(framealpha=0.0, ncol=1, fontsize=10)
-        apply_custom_settings(ax1, leg1, False)
-
-        # Plot neutrino data for the x-z plane
-        c2 = ax2.pcolormesh(Xc[:, 10, :], Zc[:, 10, :], Fy00_Re[time_index, :, 10, :], shading='auto', cmap='viridis', vmin=min_nee, vmax=max_nee)
-
-        # Plot the arrows of the vector F_00_xy starting in each cell center
-        ax2.quiver(Xc[:, 10, :], Zc[:, 10, :], F_00_for_plot[time_index,:,:,10,1], F_00_for_plot[time_index,:,:,10,2], color='white', scale=1, scale_units='xy', angles='xy')
-
-        # Plot the mesh grid for the x-z plane
-        # ax2.plot(X[:, 10, :], Z[:, 10, :], color='gray', linestyle='-', linewidth=0.5)
-        # ax2.plot(X[:, 10, :].T, Z[:, 10, :].T, color='gray', linestyle='-', linewidth=0.5)
-
-        # Draw a circle representing the black hole in the x-z plane
         circle2 = plt.Circle((bh_center_x, bh_center_z), bh_radius, color='black')
+        ax1.add_patch(circle1)
         ax2.add_patch(circle2)
 
-        # Plot settings for the x-z plane
+        # vector field for the y-z plane
+        ax1.quiver(x_up, y_up, vector_field_up[0], vector_field_up[1], color='white', scale=1, scale_units='xy', angles='xy')
+        ax2.quiver(x_down, y_down, vector_field_down[0], vector_field_down[1], color='white', scale=1, scale_units='xy', angles='xy')
+
+        # Plot settings for the y-z plane
         ax2.set_xlabel(r'$x \, (\mathrm{cm})$')
+        ax1.set_ylabel(r'$y \, (\mathrm{cm})$')
         ax2.set_ylabel(r'$z \, (\mathrm{cm})$')
+
+        leg1 = ax1.legend(framealpha=0.0, ncol=1, fontsize=10)
+        leg2 = ax2.legend(framealpha=0.0, ncol=1, fontsize=10)
+        apply_custom_settings(ax1, leg1, False)
+        apply_custom_settings(ax2, leg2, False)
 
         # Share a single color bar for both plots
         fig.subplots_adjust(right=0.85, hspace=0)  # Set hspace to 0 to remove the white space
         cbar_ax = fig.add_axes([0.82, 0.113, 0.04, 0.76]) # [left, bottom, width, height]
-        cbar = fig.colorbar(c2, cax=cbar_ax, label=r'$|\vec{f}_e| \, (\mathrm{cm}^{-3}$)')
+        cbar = fig.colorbar(c2, cax=cbar_ax, label=r'$'+color_bar_label+' \, (\mathrm{cm}^{-3}$)')
         
         # Apply minor ticks to the color bar
         cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -230,48 +206,160 @@ with h5py.File(file_path, 'r') as file:
         ax1.set_aspect('equal', 'box')
         ax2.set_aspect('equal', 'box')
 
-        leg2 = ax2.legend(framealpha=0.0, ncol=1, fontsize=10)
-        apply_custom_settings(ax2, leg2, False)
-
         # Save the figure as a PDF
-        plt.savefig(f'./frames_f_00/f_00_{time_index}.png', bbox_inches='tight')
+        plt.savefig("./"+file_name+"/"+file_name+"_"+str(frame_index)+".png", bbox_inches='tight')
 
+        # Close the figure
         plt.close(fig)
 
+    ####################################################################################
+    # Plotting densities
+    ####################################################################################
 
-# Get the list of image files
-image_files = sorted(glob.glob('./frames_f_00/*.png'))
-# Sort the image files by the number after 'f_00_' and before '.png'
-image_files = sorted(image_files, key=lambda x: int(x.split('_')[-1].split('.')[0]))
+    folders_2flavors_densities = ['n_ee', 'n_eu', 'n_uu', 'nbar_ee', 'nbar_eu', 'nbar_uu']
+    folders_3flavors_densities = ['n_et', 'n_ut', 'n_tt', 'nbar_et', 'nbar_ut', 'nbar_tt']
 
-# Read the first image to get the dimensions
-frame = cv2.imread(image_files[0])
-height, width, layers = frame.shape
+    for folder in folders_2flavors_densities:
+        os.makedirs('./'+folder, exist_ok=True)
+    if n_flavors == 3:
+        for folder in folders_3flavors_densities:
+            os.makedirs('./'+folder, exist_ok=True)
 
-# Define the codec and create VideoWriter object
-video = cv2.VideoWriter('./frames_f_00/output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (width, height))
+    def get_magnitude_densities(data_dict, keys):
+        if len(keys) == 1:
+            return data_dict[keys[0]]
+        return np.sqrt(sum(data_dict[key]**2 for key in keys))
 
-for image_file in image_files:
-    video.write(cv2.imread(image_file))
+    def plot_all_data_densities(data_dict, labels, folder_prefix, n_flavors):
+        for label in labels:
+            mag = get_magnitude_densities(data_dict, label['keys'])
+            mag_min = np.min(mag)
+            mag_max = np.max(mag)
+            for time_index in range(len(data_dict['t(s)'])):
+                z_slice = 10
+                y_slice = 10
+                mag_z_slice = mag[time_index, :, :, z_slice]
+                mag_y_slice = mag[time_index, :, y_slice, :]
+                plotting_densities(Xc[:, :, z_slice], Yc[:, :, z_slice], mag_z_slice,
+                              Xc[:, y_slice, :], Zc[:, y_slice, :], mag_y_slice, 
+                              mag_min, mag_max, label['label'], folder_prefix + label['folder'], time_index)
 
-# Release the video writer object
-video.release()
+    labels_2flavors = [
+        {'keys': ['N00_Re(1|ccm)'], 'label': 'n_{ee}', 'folder': 'n_ee'},
+        {'keys': ['N01_Re(1|ccm)', 'N01_Im(1|ccm)'], 'label': 'n_{eu}', 'folder': 'n_eu'},
+        {'keys': ['N11_Re(1|ccm)'], 'label': 'n_{uu}', 'folder': 'n_uu'},
+        {'keys': ['N00_Rebar(1|ccm)'], 'label': r'\bar{n}_{ee}', 'folder': 'nbar_ee'},
+        {'keys': ['N01_Rebar(1|ccm)', 'N01_Imbar(1|ccm)'], 'label': r'\bar{n}_{eu}', 'folder': 'nbar_eu'},
+        {'keys': ['N11_Rebar(1|ccm)'], 'label': r'\bar{n}_{uu}', 'folder': 'nbar_uu'}
+    ]
 
+    labels_3flavors = [
+        {'keys': ['N02_Re(1|ccm)', 'N02_Im(1|ccm)'], 'label': 'n_{et}', 'folder': 'n_et'},
+        {'keys': ['N12_Re(1|ccm)', 'N12_Im(1|ccm)'], 'label': 'n_{ut}', 'folder': 'n_ut'},
+        {'keys': ['N22_Re(1|ccm)'], 'label': 'n_{tt}', 'folder': 'n_tt'},
+        {'keys': ['N02_Rebar(1|ccm)', 'N02_Imbar(1|ccm)'], 'label': r'\bar{n}_{et}', 'folder': 'nbar_et'},
+        {'keys': ['N12_Rebar(1|ccm)', 'N12_Imbar(1|ccm)'], 'label': r'\bar{n}_{ut}', 'folder': 'nbar_ut'},
+        {'keys': ['N22_Rebar(1|ccm)'], 'label': r'\bar{n}_{tt}', 'folder': 'nbar_tt'}
+    ]
 
-# Get the list of image files for n
-image_files_n = sorted(glob.glob('./frames_n_00/*.png'))
-# Sort the image files by the number after 'n_00_' and before '.png'
-image_files_n = sorted(image_files_n, key=lambda x: int(x.split('_')[-1].split('.')[0]))
+    plot_all_data_densities(data_dict, labels_2flavors, '', n_flavors)
+    if n_flavors == 3:
+        plot_all_data_densities(data_dict, labels_3flavors, '', n_flavors)
 
-# Read the first image to get the dimensions
-frame_n = cv2.imread(image_files_n[0])
-height_n, width_n, layers_n = frame_n.shape
+    ####################################################################################
+    # Plotting fluxes
+    ####################################################################################
 
-# Define the codec and create VideoWriter object for n
-video_n = cv2.VideoWriter('./frames_n_00/output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 10, (width_n, height_n))
+    folders_2flavors_fluxes = ['f_ee', 'f_uu', 'fbar_ee', 'fbar_uu']
+    folders_3flavors_fluxes = ['f_tt', 'fbar_tt']
+    
+    for folder in folders_2flavors_fluxes:
+        os.makedirs('./'+folder, exist_ok=True)
+    if n_flavors == 3:
+        for folder in folders_3flavors_fluxes:
+            os.makedirs('./'+folder, exist_ok=True)
 
-for image_file_n in image_files_n:
-    video_n.write(cv2.imread(image_file_n))
+    def get_flux_magnitud_and_unit_vector(data_dict, keys):
+        fx = data_dict[keys[0]]
+        fy = data_dict[keys[1]]
+        fz = data_dict[keys[2]]
+        mag = np.sqrt(fx**2+fy**2+fz**2)
+        fx = np.where(mag != 0, fx / mag, 0)
+        fy = np.where(mag != 0, fy / mag, 0)
+        fz = np.where(mag != 0, fz / mag, 0)
+        return mag, np.stack((fx, fy, fz), axis=-1)
 
-# Release the video writer object for n
-video_n.release()
+    def plot_all_fluxes(data_dict, labels, folder_prefix):
+        for label in labels:
+            mag, flux_unit = get_flux_magnitud_and_unit_vector(data_dict, label['keys'])
+            flux = min(dx,dy,dz) * flux_unit
+            mag_min = np.min(mag)
+            mag_max = np.max(mag)
+            for time_index in range(len(data_dict['t(s)'])):
+                z_slice = 10
+                y_slice = 10
+                mag_z_slice = mag[time_index, :, :, z_slice]
+                mag_y_slice = mag[time_index, :, y_slice, :]
+                flux_z_slice = [flux[time_index, :, :, z_slice, 0], flux[time_index, :, :, z_slice,1]]
+                flux_y_slice = [flux[time_index, :, y_slice, :, 0], flux[time_index, :, y_slice, :, 2]]
+                plotting_fluxes(Xc[:, :, z_slice], Yc[:, :, z_slice], mag_z_slice, flux_z_slice,
+                                Xc[:, y_slice, :], Zc[:, y_slice, :], mag_y_slice, flux_y_slice,
+                                mag_min, mag_max, label['label'], folder_prefix + label['folder'], time_index)
+
+    labels_2flavors_flux = [
+        {'keys': ['Fx00_Re(1|ccm)','Fy00_Re(1|ccm)','Fz00_Re(1|ccm)'], 'label': '|\\vec{f}_{ee}|', 'folder': 'f_ee'},
+        {'keys': ['Fx00_Rebar(1|ccm)','Fy00_Rebar(1|ccm)','Fz00_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{ee}}|', 'folder': 'fbar_ee'},
+        {'keys': ['Fx11_Re(1|ccm)', 'Fy11_Re(1|ccm)', 'Fz11_Re(1|ccm)'], 'label': '|\\vec{f}_{uu}|', 'folder': 'f_uu'},
+        {'keys': ['Fx11_Rebar(1|ccm)','Fy11_Rebar(1|ccm)','Fz11_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{uu}}|', 'folder': 'fbar_uu'}
+        
+    ]
+
+    labels_3flavors_flux = [
+        {'keys': ['Fx22_Re(1|ccm)', 'Fy22_Re(1|ccm)', 'Fz22_Re(1|ccm)'], 'label': '|\\vec{f}_{tt}|', 'folder': 'f_tt'},
+        {'keys': ['Fx22_Rebar(1|ccm)', 'Fy22_Rebar(1|ccm)', 'Fz22_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{tt}}|', 'folder': 'fbar_tt'},
+    ]
+
+    plot_all_fluxes(data_dict, labels_2flavors_flux, '')
+    if n_flavors == 3:
+        plot_all_fluxes(data_dict, labels_3flavors_flux, '')
+
+####################################################################################
+# Movies
+####################################################################################
+
+# Function to create a movie from a directory of images
+def create_movie_from_images(directory, output_filename, frame_rate=5):
+
+    # Get the list of image files
+    image_files = sorted(glob.glob(os.path.join(directory, '*.png')))
+    # Sort the image files by the number after the last underscore and before '.png'
+    image_files = sorted(image_files, key=lambda x: int(x.split('_')[-1].split('.')[0]))
+
+    if not image_files:
+        raise ValueError(f"No images found in directory: {directory}")
+
+    # Read the first image to get the dimensions
+    frame = cv2.imread(image_files[0])
+    height, width, layers = frame.shape
+
+    # Define the codec and create VideoWriter object
+    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'mp4v'), frame_rate, (width, height))
+
+    for image_file in image_files:
+        video.write(cv2.imread(image_file))
+
+    # Release the video writer object
+    video.release()
+
+# Create movies from the images in the directories
+for folder in folders_2flavors_densities:
+    create_movie_from_images('./'+folder, './'+folder+'/output.mp4')
+if n_flavors == 3:
+    for folder in folders_3flavors_densities:
+        create_movie_from_images('./'+folder, './'+folder+'/output.mp4')
+
+for folder in folders_2flavors_fluxes:
+    create_movie_from_images('./'+folder, './'+folder+'/output.mp4')
+if n_flavors == 3:
+    for folder in folders_3flavors_fluxes:
+        create_movie_from_images('./'+folder, './'+folder+'/output.mp4')
