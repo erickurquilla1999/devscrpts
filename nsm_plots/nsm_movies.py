@@ -197,7 +197,7 @@ with h5py.File(file_path, 'r') as file:
         # Share a single color bar for both plots
         fig.subplots_adjust(right=0.85, hspace=0)  # Set hspace to 0 to remove the white space
         cbar_ax = fig.add_axes([0.82, 0.113, 0.04, 0.76]) # [left, bottom, width, height]
-        cbar = fig.colorbar(c2, cax=cbar_ax, label=r'$'+color_bar_label+' \, (\mathrm{cm}^{-3}$)')
+        cbar = fig.colorbar(c2, cax=cbar_ax, label='$'+color_bar_label+' \, (\mathrm{cm}^{-3}$)')
         
         # Apply minor ticks to the color bar
         cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -307,16 +307,16 @@ with h5py.File(file_path, 'r') as file:
                                 mag_min, mag_max, label['label'], folder_prefix + label['folder'], time_index)
 
     labels_2flavors_flux = [
-        {'keys': ['Fx00_Re(1|ccm)','Fy00_Re(1|ccm)','Fz00_Re(1|ccm)'], 'label': '|\\vec{f}_{ee}|', 'folder': 'f_ee'},
-        {'keys': ['Fx00_Rebar(1|ccm)','Fy00_Rebar(1|ccm)','Fz00_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{ee}}|', 'folder': 'fbar_ee'},
-        {'keys': ['Fx11_Re(1|ccm)', 'Fy11_Re(1|ccm)', 'Fz11_Re(1|ccm)'], 'label': '|\\vec{f}_{uu}|', 'folder': 'f_uu'},
-        {'keys': ['Fx11_Rebar(1|ccm)','Fy11_Rebar(1|ccm)','Fz11_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{uu}}|', 'folder': 'fbar_uu'}
+        {'keys': ['Fx00_Re(1|ccm)','Fy00_Re(1|ccm)','Fz00_Re(1|ccm)'], 'label': r'|\vec{f}_{ee}|', 'folder': 'f_ee'},
+        {'keys': ['Fx00_Rebar(1|ccm)','Fy00_Rebar(1|ccm)','Fz00_Rebar(1|ccm)'], 'label': r'|\vec{\bar{f}}_{ee}|', 'folder': 'fbar_ee'},
+        {'keys': ['Fx11_Re(1|ccm)', 'Fy11_Re(1|ccm)', 'Fz11_Re(1|ccm)'], 'label': r'|\vec{f}_{uu}|', 'folder': 'f_uu'},
+        {'keys': ['Fx11_Rebar(1|ccm)','Fy11_Rebar(1|ccm)','Fz11_Rebar(1|ccm)'], 'label': r'|\vec{\bar{f}}_{uu}|', 'folder': 'fbar_uu'}
         
     ]
 
     labels_3flavors_flux = [
-        {'keys': ['Fx22_Re(1|ccm)', 'Fy22_Re(1|ccm)', 'Fz22_Re(1|ccm)'], 'label': '|\\vec{f}_{tt}|', 'folder': 'f_tt'},
-        {'keys': ['Fx22_Rebar(1|ccm)', 'Fy22_Rebar(1|ccm)', 'Fz22_Rebar(1|ccm)'], 'label': r'|\\vec{f}_{\bar{tt}}|', 'folder': 'fbar_tt'},
+        {'keys': ['Fx22_Re(1|ccm)', 'Fy22_Re(1|ccm)', 'Fz22_Re(1|ccm)'], 'label': r'|\vec{f}_{tt}|', 'folder': 'f_tt'},
+        {'keys': ['Fx22_Rebar(1|ccm)', 'Fy22_Rebar(1|ccm)', 'Fz22_Rebar(1|ccm)'], 'label': r'|\vec{\bar{f}}_{tt}|', 'folder': 'fbar_tt'},
     ]
 
     plot_all_fluxes(data_dict, labels_2flavors_flux, '')
