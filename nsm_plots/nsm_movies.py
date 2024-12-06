@@ -23,7 +23,7 @@ import glob
 # Font settings
 mpl.rcParams['font.size'] = 22
 mpl.rcParams['font.family'] = 'serif'
-mpl.rc('text', usetex=True)
+mpl.rc('text', usetex=False)
 
 # Tick settings
 mpl.rcParams['xtick.major.width'] = 2
