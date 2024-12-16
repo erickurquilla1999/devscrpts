@@ -14,15 +14,15 @@ import time
 # EMU grid parameters
 # The following domain is optimal for the use
 # of the LS220 EoS and the NuLib SFH EoS
-ncellsx = 100 # scalar, number of cells in x-direction
-ncellsy = 100 # scalar, number of cells in y-direction
-ncellsz = 20 # scalar, number of cells in z-direction
-xmin = -50.0e5 #cm
-xmax = +50.0e5 #cm
-ymin = -50.0e5 #cm
-ymax = +50.0e5 #cm
-zmin = -10.0e5 #cm
-zmax = +10.0e5 #cm
+ncellsx = 96 # scalar, number of cells in x-direction
+ncellsy = 96 # scalar, number of cells in y-direction
+ncellsz = 64 # scalar, number of cells in z-direction
+xmin = -48.0e5 #cm
+xmax = +48.0e5 #cm
+ymin = -48.0e5 #cm
+ymax = +48.0e5 #cm
+zmin = -16.0e5 #cm
+zmax = +48.0e5 #cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
@@ -163,19 +163,34 @@ Ye_points_NuLib_SFH = [
 ]
 
 # Nulib table limits
-rhomin  = max(rho_LS220[1],rho_points_NuLib_SFH[1]) # g/cm^3
-rhomax  = min(rho_LS220[-2],rho_points_NuLib_SFH[-2]) # g/cm^3
-tempmin  = max(temp_LS220[1],temp_points_NuLib_SFH[1]) # MeV
-tempmax  = min(temp_LS220[-2],temp_points_NuLib_SFH[-2]) # MeV
-yemin  = max(Ye_LS220[1],Ye_points_NuLib_SFH[1]) # adimensional
-yemax  = min(Ye_LS220[-2],Ye_points_NuLib_SFH[-2]) # adimensional
+rho_fb_center_NuLib = rho_points_NuLib_SFH[0] + 0.1*(rho_points_NuLib_SFH[1]-rho_points_NuLib_SFH[0]) # g/cm^3
+rho_fb_center_LS220 = rho_LS220[0] + 0.1*(rho_LS220[1]-rho_LS220[0]) # g/cm^3
+temp_fb_center_NuLib = temp_points_NuLib_SFH[0] + 0.1*(temp_points_NuLib_SFH[1]-temp_points_NuLib_SFH[0]) # MeV
+temp_fb_center_LS220 = temp_LS220[0] + 0.1*(temp_LS220[1]-temp_LS220[0]) # MeV
+Ye_fb_center_NuLib = Ye_points_NuLib_SFH[0] + 0.1*(Ye_points_NuLib_SFH[1]-Ye_points_NuLib_SFH[0]) # adimensional
+Ye_fb_center_LS220 = Ye_LS220[0] + 0.1*(Ye_LS220[1]-Ye_LS220[0]) # adimensional
 
-print(f"rhomin = {rhomin} # g/cm^3")
-print(f"rhomax = {rhomax} # g/cm^3")
-print(f"tempmin = {tempmin} # MeV")
-print(f"tempmax = {tempmax} # MeV")
-print(f"yemin = {yemin} # adimensional")
-print(f"yemax = {yemax} # adimensional")
+rho_lb_center_NuLib = rho_points_NuLib_SFH[-1] - 0.1*(rho_points_NuLib_SFH[-1]-rho_points_NuLib_SFH[-2]) # g/cm^3
+rho_lb_center_LS220 = rho_LS220[-1] - 0.1*(rho_LS220[-1]-rho_LS220[-2]) # g/cm^3
+temp_lb_center_NuLib = temp_points_NuLib_SFH[-1] - 0.1*(temp_points_NuLib_SFH[-1]-temp_points_NuLib_SFH[-2]) # MeV
+temp_lb_center_LS220 = temp_LS220[-1] - 0.1*(temp_LS220[-1]-temp_LS220[-2]) # MeV
+Ye_lb_center_NuLib = Ye_points_NuLib_SFH[-1] - 0.1*(Ye_points_NuLib_SFH[-1]-Ye_points_NuLib_SFH[-2]) # adimensional
+Ye_lb_center_LS220 = Ye_LS220[-1] - 0.1*(Ye_LS220[-1]-Ye_LS220[-2]) # adimensional
+
+# Nulib table limits
+rhomin  = max(rho_fb_center_NuLib, rho_fb_center_LS220) # g/cm^3
+rhomax  = min(rho_lb_center_NuLib, rho_lb_center_LS220) # g/cm^3
+tempmin = max(temp_fb_center_NuLib, temp_fb_center_LS220) # MeV
+tempmax = min(temp_lb_center_NuLib, temp_lb_center_LS220) # MeV
+yemin   = max(Ye_fb_center_NuLib, Ye_fb_center_LS220) # adimensional
+yemax   = min(Ye_lb_center_NuLib, Ye_lb_center_LS220) # adimensional
+
+print(f"rhomin = {rhomin:.2e} # g/cm^3")
+print(f"rhomax = {rhomax:.2e} # g/cm^3")
+print(f"tempmin = {tempmin:.2e} # MeV")
+print(f"tempmax = {tempmax:.2e} # MeV")
+print(f"yemin = {yemin:.2e} # adimensional")
+print(f"yemax = {yemax:.2e} # adimensional")
 
 # Find indices where the data is out of the limits
 out_of_bounds_indices = np.where((T < tempmin) | (T > tempmax) | 
