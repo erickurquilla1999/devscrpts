@@ -17,8 +17,8 @@ Computed Quantities:
     - `mu_nubar_e_MeV`: Electron anti-neutrino chemical potential (MeV).
 
 2. Equilibrium number densities:
-    - `nee_eq_ccm`: Neutrino equilibrium number density (1/ccm).
-    - `neebar_eq_ccm`: Anti-neutrino equilibrium number density (1/ccm).
+    - `n_nu_e_eq_ccm`: Neutrino equilibrium number density (1/ccm).
+    - `n_nubar_e_eq_ccm`: Anti-neutrino equilibrium number density (1/ccm).
 
 3. Absorption opacities:
     - `nu_e_absorption_opacity_cm`: Electron neutrino absorption opacity (1/cm).
@@ -338,8 +338,9 @@ delta_E_cubic_bins_MeV_cubic = E_bins_MeV_top**3 - E_bins_MeV_bottom**3 # MeV^3
 mu_nu_e_MeV    = np.zeros_like(temperature_MeV) # MeV
 mu_nubar_e_MeV = np.zeros_like(temperature_MeV) # MeV
 
-nee_eq_ccm                     = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/ccm
-neebar_eq_ccm                  = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/ccm
+n_nu_e_eq_ccm                     = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/ccm
+n_nubar_e_eq_ccm                  = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/ccm
+n_nu_x_eq_ccm                     = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/ccm
 
 nu_e_absorption_opacity_cm    = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/cm
 nubar_e_absorption_opacity_cm = np.zeros((E_bins_MeV.shape[0],) + temperature_MeV.shape) # 1/cm
@@ -359,8 +360,9 @@ def compute_weak_quantities(rho_this_gccm, ye_this, T_this_MeV, E_bins_this_MeV,
     mu_nu_e_MeV_this    =           mu_e - mu_hat   # MeV
     mu_nubar_e_MeV_this = - 1.0 * ( mu_e - mu_hat ) # MeV
 
-    nee_eq_this_ccm = np.zeros_like(E_bins_this_MeV) # 1/ccm
-    neebar_eq_this_ccm = np.zeros_like(E_bins_this_MeV) # 1/ccm
+    n_nu_e_eq_this_ccm    = np.zeros_like(E_bins_this_MeV) # 1/ccm
+    n_nubar_e_eq_this_ccm = np.zeros_like(E_bins_this_MeV) # 1/ccm
+    n_nu_x_eq_this_ccm    = np.zeros_like(E_bins_this_MeV) # 1/ccm
 
     nu_e_absorption_opacity_this_cm = np.zeros_like(E_bins_this_MeV) # 1/cm
     nubar_e_absorption_opacity_this_cm = np.zeros_like(E_bins_this_MeV) # 1/cm
@@ -377,9 +379,11 @@ def compute_weak_quantities(rho_this_gccm, ye_this, T_this_MeV, E_bins_this_MeV,
 
         f_nu_e_eq_this    = 1.0 / ( 1.0 + np.exp( ( E_this - mu_nu_e_MeV_this    ) / T_this_MeV ) )
         f_nubar_e_eq_this = 1.0 / ( 1.0 + np.exp( ( E_this - mu_nubar_e_MeV_this ) / T_this_MeV ) )
+        f_nu_x_eq_this    = 1.0 / ( 1.0 + np.exp( ( E_this - 0.0                 ) / T_this_MeV ) )
 
-        nee_eq_this_ccm   [E_index] = ( 1.0 / PhysConst.hc )**3 * 4.0 * np.pi *  ( ( delta_E_cubic_MeV_cubic_this * ( 1e6 * CGSUnitsConst.eV )**3 ) / 3.0 ) * f_nu_e_eq_this
-        neebar_eq_this_ccm[E_index] = ( 1.0 / PhysConst.hc )**3 * 4.0 * np.pi *  ( ( delta_E_cubic_MeV_cubic_this * ( 1e6 * CGSUnitsConst.eV )**3 ) / 3.0 ) * f_nubar_e_eq_this
+        n_nu_e_eq_this_ccm   [E_index] = ( 1.0 / PhysConst.hc )**3 * 4.0 * np.pi *  ( ( delta_E_cubic_MeV_cubic_this * ( 1e6 * CGSUnitsConst.eV )**3 ) / 3.0 ) * f_nu_e_eq_this
+        n_nubar_e_eq_this_ccm[E_index] = ( 1.0 / PhysConst.hc )**3 * 4.0 * np.pi *  ( ( delta_E_cubic_MeV_cubic_this * ( 1e6 * CGSUnitsConst.eV )**3 ) / 3.0 ) * f_nubar_e_eq_this
+        n_nu_x_eq_this_ccm   [E_index] = ( 1.0 / PhysConst.hc )**3 * 4.0 * np.pi *  ( ( delta_E_cubic_MeV_cubic_this * ( 1e6 * CGSUnitsConst.eV )**3 ) / 3.0 ) * f_nu_x_eq_this
 
         nu_e_absorption_opacity_this_cm   [E_index] = interpolate_eas(E_index, 0, rho_this_gccm, T_this_MeV, ye_this, nulib_h5py, 'absorption_opacity')
         nubar_e_absorption_opacity_this_cm[E_index] = interpolate_eas(E_index, 1, rho_this_gccm, T_this_MeV, ye_this, nulib_h5py, 'absorption_opacity')
@@ -391,8 +395,9 @@ def compute_weak_quantities(rho_this_gccm, ye_this, T_this_MeV, E_bins_this_MeV,
     
     return [mu_nu_e_MeV_this,
             mu_nubar_e_MeV_this,
-            nee_eq_this_ccm,
-            neebar_eq_this_ccm,
+            n_nu_e_eq_this_ccm,
+            n_nubar_e_eq_this_ccm,
+            n_nu_x_eq_this_ccm,
             nu_e_absorption_opacity_this_cm,
             nubar_e_absorption_opacity_this_cm,
             nu_x_absorption_opacity_this_cm,
@@ -433,8 +438,9 @@ for idx, result in enumerate(results):
 
     (mu_nu_e_MeV[i, j, k],
      mu_nubar_e_MeV[i, j, k],
-     nee_eq_ccm[:, i, j, k],
-     neebar_eq_ccm[:, i, j, k],
+     n_nu_e_eq_ccm[:, i, j, k],
+     n_nubar_e_eq_ccm[:, i, j, k],
+     n_nu_x_eq_ccm[:, i, j, k],
      nu_e_absorption_opacity_cm[:, i, j, k],
      nubar_e_absorption_opacity_cm[:, i, j, k],
      nu_x_absorption_opacity_cm[:, i, j, k],
@@ -471,8 +477,9 @@ save_output_data("nu_e_scattering_optical_depth_1km.h5", Xc, Yc, Zc, "nu_e_scatt
 save_output_data("nubar_e_scattering_optical_depth_1km.h5", Xc, Yc, Zc, "nubar_e_scattering_optical_depth_1km", nubar_e_scattering_optical_depth_1km)
 save_output_data("nu_x_scattering_optical_depth_1km.h5", Xc, Yc, Zc, "nu_x_scattering_optical_depth_1km", nu_x_scattering_optical_depth_1km)
 
-save_output_data("nee_eq_ccm.h5", Xc, Yc, Zc, "nee_eq_ccm", nee_eq_ccm)
-save_output_data("neebar_eq_ccm.h5", Xc, Yc, Zc, "neebar_eq_ccm", neebar_eq_ccm)
+save_output_data("n_nu_e_eq_ccm.h5", Xc, Yc, Zc, "n_nu_e_eq_ccm", n_nu_e_eq_ccm)
+save_output_data("n_nubar_e_eq_ccm.h5", Xc, Yc, Zc, "n_nubar_e_eq_ccm", n_nubar_e_eq_ccm)
+save_output_data("n_nu_x_eq_ccm.h5", Xc, Yc, Zc, "n_nu_x_eq_ccm", n_nu_x_eq_ccm)
 
 save_output_data("mu_nu_e_MeV.h5", Xc, Yc, Zc, "mu_nu_e_MeV", mu_nu_e_MeV)
 save_output_data("mu_nubar_e_MeV.h5", Xc, Yc, Zc, "mu_nubar_e_MeV", mu_nubar_e_MeV)
