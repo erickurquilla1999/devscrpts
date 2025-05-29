@@ -1,3 +1,5 @@
+import numpy as np
+
 class CGSUnitsConst:
     eV = 1.60218e-12  # erg
 
