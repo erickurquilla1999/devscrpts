@@ -5,6 +5,7 @@ import time
 import multiprocessing as mp
 
 import FFI_functions as ffi
+import os
 
 
 # Get the cell indices
@@ -20,8 +21,11 @@ cellvolume = 1.0  # ccm
 
 def writehdf5file(indexpair):
     i, j, k = indexpair
-    sigma, GnPos, GnNeg = ffi.compute_sigma_GnPos_GnNeg(i, j, k, '.', cellvolume)
     h5_filename = f'FFI_cell_{i}_{j}_{k}.h5'
+    if os.path.exists(h5_filename):
+        print(f'File {h5_filename} already exists. Skipping calculation.')
+        return
+    sigma, GnPos, GnNeg = ffi.compute_sigma_GnPos_GnNeg(i, j, k, '.', cellvolume)
     with h5py.File(h5_filename, 'w') as h5f:
         h5f.create_dataset('sigma_inverse_s', data=sigma)
         h5f.create_dataset('GnPos_inverse_s', data=GnPos)
