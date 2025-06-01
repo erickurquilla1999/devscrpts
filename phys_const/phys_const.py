@@ -10,7 +10,7 @@ class PhysConst:
     hbar = 1.05457266e-27  # erg s
     hbarc = hbar * c  # erg cm
     hc = hbarc*2*np.pi
-    GF = (1.1663787e-5 / (1e9 * 1e9 * CGSUnitsConst.eV * CGSUnitsConst.eV))
+    GF = (1.1663787e-5 / (1e9 * 1e9 * CGSUnitsConst.eV * CGSUnitsConst.eV)) # This is Gf/(hbarc)^3 in units of erg^-2
     Mp = 1.6726219e-24  # g
     sin2thetaW = 0.23122
     kB = 1.380658e-16  # erg/K
