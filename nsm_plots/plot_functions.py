@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib as mpl
@@ -28,8 +29,7 @@ mpl.rcParams['ytick.direction'] = 'in'
 mpl.rcParams['xtick.top'] = True
 mpl.rcParams['ytick.right'] = True
 
-# Function to apply custom tick locators and other settings to an Axes object
-def apply_custom_settings(ax, log_scale_y=False):
+def apply_custom_settings(ax, leg=None, log_scale_y=False):
 
     if log_scale_y:
         # Use LogLocator for the y-axis if it's in log scale
@@ -44,6 +44,11 @@ def apply_custom_settings(ax, log_scale_y=False):
     # Apply the AutoLocator for the x-axis
     ax.xaxis.set_major_locator(AutoLocator())
     ax.xaxis.set_minor_locator(AutoMinorLocator())
+
+    # Legend settings
+    if leg is not None:
+        leg.get_frame().set_edgecolor('w')
+        leg.get_frame().set_linewidth(0.0)
 
 def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, doshow=True, dosave=True):
 
@@ -68,7 +73,7 @@ def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label,
     cbar = fig.colorbar(c, ax=ax, label=cbar_label)
     cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
 
-    apply_custom_settings(ax, False)
+    apply_custom_settings(ax, None, False)
 
     # Ensure equal aspect ratio
     ax.set_aspect('equal', 'box')
@@ -83,4 +88,91 @@ def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label,
     # display(fig)
     
     # Close figure
+    plt.close(fig)
+
+def plot_pcolormesh_with_contour_and_scatter(
+    x1, y1, z1, min_cb1, max_cb1, cbar_label1, colormap1,
+    x2, y2, z2, min_cb2, max_cb2, cbar_label2, colormap2,
+    x_label, y_label, title, filename,
+    x_scatter1, y_scatter1, z_scatter1,
+    x_scatter2, y_scatter2, z_scatter2,
+    sc_point_color):
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Plot pcolormesh
+    c1 = ax.pcolormesh(x1, y1, z1, shading='auto', cmap=colormap1, vmin=min_cb1, vmax=max_cb1)
+    c2 = ax.pcolormesh(x2, y2, z2, shading='auto', cmap=colormap2, vmin=min_cb2, vmax=max_cb2)
+
+    # ax.scatter([2*np.pi/20.0], [0.85], color=sc_point_color, s=800)
+
+    ax.scatter(x_scatter1, y_scatter1, c=z_scatter1, cmap=colormap1, vmin=min_cb1, vmax=max_cb1, s=100, edgecolor='black')
+    ax.scatter(x_scatter2, y_scatter2, c=z_scatter2, cmap=colormap2, vmin=min_cb2, vmax=max_cb2, s=100, edgecolor='black')
+
+    # Add contour lines
+    # contour1 = ax.contour(x1, y1, z1, colors='black', linewidths=0.5, levels=4)
+    # contour2 = ax.contour(x2, y2, z2, colors='black', linewidths=0.5, levels=4)
+    # ax.clabel(contour1, inline=True, fontsize=15, fmt='%1.1f')
+    # ax.clabel(contour2, inline=True, fontsize=15, fmt='%1.1f')
+
+    # Plot settings
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+
+    ax.set_xlim(0, 2 * np.pi)
+    ax.set_ylim(-1, 1)
+
+    # Add color bar
+    cbar1 = fig.colorbar(c1, ax=ax, label=cbar_label1, location='right')
+    cbar2 = fig.colorbar(c2, ax=ax, label=cbar_label2, location='right')
+    cbar1.ax.yaxis.set_minor_locator(AutoMinorLocator())
+    cbar2.ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+    leg = ax.legend(framealpha=0.0, ncol=1, fontsize=15)
+    apply_custom_settings(ax, leg, False)
+
+    # Ensure equal aspect ratio
+    ax.set_aspect('auto', 'box')
+
+    # Save figure
+    fig.savefig(filename, format='png', bbox_inches='tight')
+
+    # Display figure
+    plt.show()
+
+    # Close figure
+    plt.close(fig)
+
+def plot_pcolormesh_with_contour_and_scatter_one_cbar(
+    x1, y1, z1, min_cb1, max_cb1, cbar_label1, colormap1,
+    x_label, y_label, title, filename,
+    x_scatter1, y_scatter1, z_scatter1):
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Plot pcolormesh for both, but only use colorbar from c1
+    c1 = ax.pcolormesh(x1, y1, z1, shading='auto', cmap=colormap1, vmin=min_cb1, vmax=max_cb1)
+
+    ax.scatter(x_scatter1, y_scatter1, c=z_scatter1, cmap=colormap1, vmin=min_cb1, vmax=max_cb1, s=100, edgecolor='black')
+
+    # Plot settings
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+
+    ax.set_xlim(0, 2 * np.pi)
+    ax.set_ylim(-1, 1)
+
+    # Add only one color bar
+    cbar1 = fig.colorbar(c1, ax=ax, label=cbar_label1, location='right')
+    cbar1.ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+    leg = ax.legend(framealpha=0.0, ncol=1, fontsize=15)
+    apply_custom_settings(ax, leg, False)
+
+    ax.set_aspect('auto', 'box')
+
+    fig.savefig(filename, format='png', bbox_inches='tight')
+    plt.show()
     plt.close(fig)
