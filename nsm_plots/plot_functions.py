@@ -58,9 +58,9 @@ def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label,
     c = ax.pcolormesh(x, y, z, shading='auto', cmap=colormap, vmin=min_cb, vmax=max_cb)
 
     # Add contour lines
-    contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=3)
+    # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=3)
     # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=[0.5,2.0,3.5])
-    ax.clabel(contour, inline=True, fontsize=15, fmt='%1.1f')
+    # ax.clabel(contour, inline=True, fontsize=15, fmt='%1.1f')
     # ax.clabel(contour, inline=True, fontsize=15, fmt='%1.1e')
 
     # Plot settings
