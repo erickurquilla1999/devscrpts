@@ -7,6 +7,8 @@ import multiprocessing as mp
 import FFI_functions as ffi
 import os
 
+# number of flavors
+NF = 3
 
 # Get the cell indices
 cell_file_names = glob.glob('cell_*_*_*')
@@ -48,7 +50,7 @@ def writehdf5file(indexpair):
     if os.path.exists(h5_filename):
         print(f'File {h5_filename} already exists. Skipping calculation.')
         return
-    sigma, GnPos, GnNeg = ffi.compute_sigma_GnPos_GnNeg(i, j, k, '.', cellvolume)
+    sigma, GnPos, GnNeg = ffi.compute_sigma_GnPos_GnNeg(i, j, k, '.', cellvolume, NF)
     with h5py.File(h5_filename, 'w') as h5f:
         h5f.create_dataset('sigma_inverse_s', data=sigma)
         h5f.create_dataset('GnPos_inverse_s', data=GnPos)

@@ -6,7 +6,7 @@ import functions_angular_crossings as fac
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../phys_const')))
 import phys_const as pc
 
-def compute_sigma_GnPos_GnNeg(i, j, k, directory, cellvolume):
+def compute_sigma_GnPos_GnNeg(i, j, k, directory, cellvolume, num_flavors):
 
         # Dictionary keys
         # <KeysViewHDF5 ['N00_Re', 'N00_Rebar', 'N01_Im', 'N01_Imbar', 'N01_Re', 'N01_Rebar', 'N02_Im', 'N02_Imbar', 'N02_Re', 'N02_Rebar', 'N11_Re', 'N11_Rebar', 'N12_Im', 'N12_Imbar', 'N12_Re', 'N12_Rebar', 'N22_Re', 'N22_Rebar', 'TrHN', 'Vphase', 'pos_x', 'pos_y', 'pos_z', 'pupt', 'pupx', 'pupy', 'pupz', 'time', 'x', 'y', 'z']>
@@ -31,30 +31,34 @@ def compute_sigma_GnPos_GnNeg(i, j, k, directory, cellvolume):
 
         nee_all     = particles_dict_this_cell['N00_Re']    / cellvolume
         nuu_all     = particles_dict_this_cell['N11_Re']    / cellvolume
-        ntt_all     = particles_dict_this_cell['N22_Re']    / cellvolume
         neebar_all  = particles_dict_this_cell['N00_Rebar'] / cellvolume
         nuubar_all  = particles_dict_this_cell['N11_Rebar'] / cellvolume
-        nttbar_all  = particles_dict_this_cell['N22_Rebar']  / cellvolume
+        if num_flavors == 3:
+                ntt_all     = particles_dict_this_cell['N22_Re']    / cellvolume
+                nttbar_all  = particles_dict_this_cell['N22_Rebar']  / cellvolume
 
         fluxee_all    = nee_all   [:, np.newaxis] * momentum
         fluxuu_all    = nuu_all   [:, np.newaxis] * momentum
-        fluxtt_all    = ntt_all   [:, np.newaxis] * momentum
         fluxeebar_all = neebar_all[:, np.newaxis] * momentum
         fluxuubar_all = nuubar_all[:, np.newaxis] * momentum
-        fluxnttbar_all = nttbar_all[:, np.newaxis] * momentum
+        if num_flavors == 3:
+                fluxtt_all    = ntt_all   [:, np.newaxis] * momentum
+                fluxnttbar_all = nttbar_all[:, np.newaxis] * momentum
 
         ee_unique_fluxes, ee_unique_fluxes_mag       = fac.compute_unique_fluxes(momentum, fluxee_all, unique_momentum)
         uu_unique_fluxes, uu_unique_fluxes_mag       = fac.compute_unique_fluxes(momentum, fluxuu_all, unique_momentum)
-        tt_unique_fluxes, tt_unique_fluxes_mag       = fac.compute_unique_fluxes(momentum, fluxtt_all, unique_momentum)
         eebar_unique_fluxes, eebar_unique_fluxes_mag = fac.compute_unique_fluxes(momentum, fluxeebar_all, unique_momentum)
         uubar_unique_fluxes, uubar_unique_fluxes_mag = fac.compute_unique_fluxes(momentum, fluxuubar_all, unique_momentum)
-        ttbar_unique_fluxes, ttbar_unique_fluxes_mag = fac.compute_unique_fluxes(momentum, fluxnttbar_all, unique_momentum)
+        if num_flavors == 3:
+                tt_unique_fluxes, tt_unique_fluxes_mag       = fac.compute_unique_fluxes(momentum, fluxtt_all, unique_momentum)
+                ttbar_unique_fluxes, ttbar_unique_fluxes_mag = fac.compute_unique_fluxes(momentum, fluxnttbar_all, unique_momentum)
 
         eln_xln = (
         (ee_unique_fluxes_mag - eebar_unique_fluxes_mag ) -
-        (uu_unique_fluxes_mag - uubar_unique_fluxes_mag ) -  
-        (tt_unique_fluxes_mag - ttbar_unique_fluxes_mag ) 
+        (uu_unique_fluxes_mag - uubar_unique_fluxes_mag ) 
         )
+        if num_flavors == 3:
+                eln_xln -= (tt_unique_fluxes_mag - ttbar_unique_fluxes_mag)
 
         G_ELN = np.sqrt(2) * pc.PhysConst.GF * ( pc.PhysConst.hbarc**3 / pc.PhysConst.hbar ) * eln_xln
 
