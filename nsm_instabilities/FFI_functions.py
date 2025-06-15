@@ -61,8 +61,9 @@ def compute_sigma_GnPos_GnNeg(i, j, k, directory, cellvolume):
         mask_pos_eln = G_ELN > 0
         mask_neg_eln = G_ELN < 0
 
-        GnPos = +1.0 * ( domega / (4 * np.pi) ) * np.sum(G_ELN[mask_pos_eln])
-        GnNeg = -1.0 * ( domega / (4 * np.pi) ) * np.sum(G_ELN[mask_neg_eln])
+        GnPos = +1.0 * np.sum(G_ELN[mask_pos_eln])
+        GnNeg = -1.0 * np.sum(G_ELN[mask_neg_eln])
+
         sigma = np.sqrt(GnPos*GnNeg) / (2 * np.pi)
 
         print(f'sigma={sigma:.3e} 1/s, GnPos={GnPos:.3e} 1/s, GnNeg={GnNeg:.3e} 1/s, i={i}, j={j}, k={k}')
