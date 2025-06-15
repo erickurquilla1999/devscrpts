@@ -7,8 +7,8 @@ import multiprocessing as mp
 import FFI_functions as ffi
 import os
 
-# number of flavors
-NF = 3
+NF = 3 # number of flavors
+cellvolume = 1.0e5**3 # ccm
 
 # Get the cell indices
 cell_file_names = glob.glob('cell_*_*_*')
@@ -42,8 +42,6 @@ cell_indices = cell_indices_all
 
 print('Number of cells:', len(cell_indices))
 
-cellvolume = 1.0e5**3 # ccm
-
 def writehdf5file(indexpair):
     i, j, k = indexpair
     h5_filename = f'FFI_cell_{i}_{j}_{k}.h5'
@@ -55,7 +53,6 @@ def writehdf5file(indexpair):
         h5f.create_dataset('sigma_inverse_s', data=sigma)
         h5f.create_dataset('GnPos_inverse_s', data=GnPos)
         h5f.create_dataset('GnNeg_inverse_s', data=GnNeg)
-    print(f'Cell ({i}, {j}, {k}): sigma = {sigma:.3e} 1/s, GnPos = {GnPos:.3e} 1/s, GnNeg = {GnNeg:.3e} 1/s')
 
 if __name__ == '__main__':
     start_time = time.time()
