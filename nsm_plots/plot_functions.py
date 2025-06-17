@@ -176,3 +176,31 @@ def plot_pcolormesh_with_contour_and_scatter_one_cbar(
     fig.savefig(filename, format='png', bbox_inches='tight')
     plt.show()
     plt.close(fig)
+
+def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None):
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    num_lines = y.shape[0]
+
+    # Normalize time for colormap
+    norm = plt.Normalize(time_s.min(), time_s.max())
+    cmap = plt.cm.viridis
+
+    for i in range(num_lines):
+        color = cmap(norm(time_s[i]))
+        ax.plot(x, y[i,0,0,:], color=color)
+
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])  # Only needed for matplotlib < 3.1
+
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label(cbarlabel)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    leg = ax.legend(framealpha=0.0, ncol=2, fontsize=20)
+    apply_custom_settings(ax, leg, False)
+    if filename is not None and filename != "":
+        plt.savefig(filename, bbox_inches='tight')
+    plt.show()
+    plt.close(fig)
