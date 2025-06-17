@@ -188,7 +188,7 @@ def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None):
 
     for i in range(num_lines):
         color = cmap(norm(time_s[i]))
-        ax.plot(x, y[i,0,0,:], color=color)
+        ax.plot(x, y[i,:], color=color)
 
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # Only needed for matplotlib < 3.1
