@@ -177,7 +177,7 @@ def plot_pcolormesh_with_contour_and_scatter_one_cbar(
     plt.show()
     plt.close(fig)
 
-def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None):
+def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None, xlog= False, ylog=False):
 
     fig, ax = plt.subplots(figsize=(10, 6))
     num_lines = y.shape[0]
@@ -198,8 +198,12 @@ def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None):
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+
+    if xlog:
+        ax.set_xscale('log')
+
     leg = ax.legend(framealpha=0.0, ncol=2, fontsize=20)
-    apply_custom_settings(ax, leg, False)
+    apply_custom_settings(ax, leg, ylog)
     if filename is not None and filename != "":
         plt.savefig(filename, bbox_inches='tight')
     plt.show()
