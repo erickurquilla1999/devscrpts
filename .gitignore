@@ -2,6 +2,7 @@
 */.ipynb_checkpoints
 nsm_plots_notebooks/plots
 loc_sim_plots_notebooks/plots
+seq_ins_notebooks/plots
 
 ###############################################################################
 #  Python & Jupyter project – ignore everywhere in the tree
