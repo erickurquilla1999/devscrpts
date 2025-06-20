@@ -56,7 +56,12 @@ def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label,
 
     # Plot pcolormesh
     c = ax.pcolormesh(x, y, z, shading='auto', cmap=colormap, vmin=min_cb, vmax=max_cb)
-
+    
+    # # Scatter points (example points, can be customized). They will be used to show positions of angular distribution plots.
+    # x_pts = [5.5,10.5,15.5,20.5,25.5,30.5,35.5,40.5]
+    # y_pts = [48.5,48.5,48.5,48.5,48.5,48.5,48.5,48.5]
+    # ax.scatter(x_pts, y_pts, s=100, edgecolor='black')
+    
     # Add contour lines
     # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=3)
     # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=[0.5,2.0,3.5])
