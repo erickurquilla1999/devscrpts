@@ -50,18 +50,56 @@ def apply_custom_settings(ax, leg=None, log_scale_y=False):
         leg.get_frame().set_edgecolor('w')
         leg.get_frame().set_linewidth(0.0)
 
-def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, doshow=True, dosave=True):
+def plot_color_map_with_scattered_points(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, x_scat, y_scat, size_scat, marker_scat, color_scat, doshow=True, dosave=True):
 
     fig, ax = plt.subplots(figsize=(12, 8))
 
     # Plot pcolormesh
     c = ax.pcolormesh(x, y, z, shading='auto', cmap=colormap, vmin=min_cb, vmax=max_cb)
     
-    # # Scatter points (example points, can be customized). They will be used to show positions of angular distribution plots.
-    # x_pts = [5.5,10.5,15.5,20.5,25.5,30.5,35.5,40.5]
-    # y_pts = [48.5,48.5,48.5,48.5,48.5,48.5,48.5,48.5]
-    # ax.scatter(x_pts, y_pts, s=100, edgecolor='black')
+    # Scatter points
+    ax.scatter(x_scat, y_scat, s=size_scat, marker=marker_scat, color=color_scat)
+
+    # Add contour lines
+    # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=3)
+    # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=[0.5,2.0,3.5])
+    # ax.clabel(contour, inline=True, fontsize=15, fmt='%1.1f')
+    # ax.clabel(contour, inline=True, fontsize=15, fmt='%1.1e')
+
+    # Plot settings
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    # ax.set_title(title+'\nmin: {:.2e}\nmax: {:.2e}'.format(np.nanmin(z), np.nanmax(z)))
+    ax.set_title(title)
+
+    # Add color bar
+    cbar = fig.colorbar(c, ax=ax, label=cbar_label)
+    cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+    apply_custom_settings(ax, None, False)
+
+    # Ensure equal aspect ratio
+    ax.set_aspect('equal', 'box')
+
+    # Save figure
+    if dosave:
+        fig.savefig(filename, format='png', bbox_inches='tight')
+
+    # Display figure
+    if doshow:
+        plt.show()
+    # display(fig)
     
+    # Close figure
+    plt.close(fig)
+
+def plot_color_map(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, doshow=True, dosave=True):
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Plot pcolormesh
+    c = ax.pcolormesh(x, y, z, shading='auto', cmap=colormap, vmin=min_cb, vmax=max_cb)
+
     # Add contour lines
     # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=3)
     # contour = ax.contour(x, y, z, colors='black', linewidths=1.5, levels=[0.5,2.0,3.5])
