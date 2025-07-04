@@ -50,7 +50,7 @@ def apply_custom_settings(ax, leg=None, log_scale_y=False):
         leg.get_frame().set_edgecolor('w')
         leg.get_frame().set_linewidth(0.0)
 
-def plot_color_map_with_scattered_points(x, y, z, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, x_scat, y_scat, size_scat, marker_scat, color_scat, doshow=True, dosave=True):
+def plot_color_map_with_scattered_points(x, y, z, bh_r, bh_x, bh_y, min_cb, max_cb, x_label, y_label, title, cbar_label, colormap, filename, x_scat, y_scat, size_scat, marker_scat, color_scat, doshow=True, dosave=True):
 
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -71,6 +71,16 @@ def plot_color_map_with_scattered_points(x, y, z, min_cb, max_cb, x_label, y_lab
     ax.set_ylabel(y_label)
     # ax.set_title(title+'\nmin: {:.2e}\nmax: {:.2e}'.format(np.nanmin(z), np.nanmax(z)))
     ax.set_title(title)
+
+    # Plot a black circle at the black hole center
+    circle = plt.Circle(
+        (bh_x, bh_y),  # center in km
+        radius=bh_r,  # radius in km
+        color='black',
+        fill=True,
+        linewidth=2
+    )
+    ax.add_artist(circle)
 
     # Add color bar
     cbar = fig.colorbar(c, ax=ax, label=cbar_label)
@@ -205,7 +215,7 @@ def plot_pcolormesh_with_contour_and_scatter_one_cbar(
     ax.set_title(title)
 
     ax.set_xlim(0, 2 * np.pi)
-    ax.set_ylim(-1, 1)
+    ax.set_ylim(-0.98, 0.98)
 
     # Add only one color bar
     cbar1 = fig.colorbar(c1, ax=ax, label=cbar_label1, location='right')
