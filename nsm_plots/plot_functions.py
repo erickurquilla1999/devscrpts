@@ -72,15 +72,24 @@ def plot_color_map_with_scattered_points(x, y, z, bh_r, bh_x, bh_y, min_cb, max_
     # ax.set_title(title+'\nmin: {:.2e}\nmax: {:.2e}'.format(np.nanmin(z), np.nanmax(z)))
     ax.set_title(title)
 
-    # Plot a black circle at the black hole center
-    circle = plt.Circle(
-        (bh_x, bh_y),  # center in km
-        radius=bh_r,  # radius in km
-        color='black',
-        fill=True,
-        linewidth=2
+    # Compute distance from each mesh point to the black hole center
+    distance = np.sqrt((x - bh_x)**2 + (y - bh_y)**2)
+    mask = distance <= bh_r  # True inside the black hole
+
+    # Create masked array: only show black where mask is True
+    bh_overlay = np.ma.masked_where(~mask, mask.astype(float))
+
+    # Plot black hole with pcolormesh using 0=transparent, 1=black
+    bh_cmap = plt.cm.gray_r  # white=0, black=1
+    bh_cmap.set_bad(color='none')  # transparent for masked points
+
+    ax.pcolormesh(
+        x, y, bh_overlay,
+        shading='auto',
+        cmap=bh_cmap,
+        vmin=0, vmax=1,
+        alpha=1.0
     )
-    ax.add_artist(circle)
 
     # Add color bar
     cbar = fig.colorbar(c, ax=ax, label=cbar_label)
