@@ -257,6 +257,7 @@ def plot_colored_lines(x, y, time_s, xlabel, ylabel, cbarlabel, filename=None, x
 
     cbar = plt.colorbar(sm, ax=ax)
     cbar.set_label(cbarlabel)
+    cbar.ax.yaxis.set_minor_locator(AutoMinorLocator())
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
