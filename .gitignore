@@ -4,6 +4,8 @@ nsm_plots_notebooks/plots
 loc_sim_plots_notebooks/plots
 seq_ins_notebooks/plots
 nsm_global_plots_notebooks/plots
+gw170817_paper_plots/*.h5
+gw170817_paper_plots/plots
 
 ###############################################################################
 #  Python & Jupyter project – ignore everywhere in the tree
