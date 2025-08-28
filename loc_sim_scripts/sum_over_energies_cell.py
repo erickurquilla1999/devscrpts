@@ -1,3 +1,10 @@
+'''
+Script created by Erick Urquilla at the University of Tennessee, Knoxville.
+This script reads a file called cell_i_j_k.h5 and processes the particle data within it.
+It sums over all the particles in the same angular direction and returns a file named cell_i_j_k_Esummed.h5.
+The cell_i_j_k.h5 file must be located in the same directory where this script is executed.
+'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
