@@ -12,20 +12,37 @@ import nsm_rho_Ye_T_linear_interpolator
 import time
 
 # EMU grid parameters
-# The following domain is optimal for the use
+# The following domai optimal for the use
 # of the LS220 EoS and the NuLib SFH EoS
-ncellsx = 96 # scalar, number of cells in x-direction
-ncellsy = 96 # scalar, number of cells in y-direction
+ncellsx = 192 # scalar, number of cells in x-direction
+ncellsy = 192 # scalar, number of cells in y-direction
 ncellsz = 64 # scalar, number of cells in z-direction
 xmin = -48.0e5 #cm
 xmax = +48.0e5 #cm
 ymin = -48.0e5 #cm
 ymax = +48.0e5 #cm
 zmin = -16.0e5 #cm
-zmax = +48.0e5 #cm
+zmax = +16.0e5 #cm
+
+cellsize_x = (xmax - xmin) / ncellsx # cm
+cellsize_y = (ymax - ymin) / ncellsy # cm
+cellsize_z = (zmax - zmin) / ncellsz # cm
+
+diag_cell_distance = np.sqrt( cellsize_x**2 + cellsize_y**2 + cellsize_z**2 ) # cm
+
+bh_radius   = 5.43e+05 # cm
+bh_center_x = 0.0 # cm
+bh_center_y = 0.0 # cm
+bh_center_z = 0.0 # cm
 
 # Create EMU mesh
 centers, mesh = nsm_grid_generator.create_grid([ncellsx, ncellsy, ncellsz], [[xmin, xmax], [ymin, ymax], [zmin, zmax]]) # cm
+
+print("mesh.shape =", mesh.shape)
+
+cell_distance_to_bh_center = np.sqrt( (mesh[:,:,:,0]-bh_center_x)**2 + (mesh[:,:,:,1]-bh_center_y)**2 + (mesh[:,:,:,2]-bh_center_z)**2 ) # cm
+cells_in_boundary_of_bg = np.where( ( cell_distance_to_bh_center >= bh_radius ) & ( cell_distance_to_bh_center <= bh_radius + diag_cell_distance ) )
+cells_in_bh = np.where( cell_distance_to_bh_center < bh_radius )
 
 start = time.time()
 # Perform interpolation
@@ -42,6 +59,34 @@ Ye = np.full( ( ncellsx, ncellsy, ncellsz ), 0.0 ) # array of size (ncellsx, nce
 T[indices]   = T_rho_Ye[:,0]
 rho[indices] = T_rho_Ye[:,1]
 Ye[indices]  = T_rho_Ye[:,2]
+
+# i=16
+# j=16
+# k=30
+
+# print(f"T_bh = {T[i, j, k]} # MeV")
+# print(f"rho_bh = {rho[i, j, k]} # g/cm^3")
+# print(f"Ye_bh = {Ye[i, j, k]} # adimensional")
+
+T_bh = 1.5451520138821122 # MeV
+rho_bh = 5770709.390880632 # g/cm^3
+Ye_bh = 0.42209953051639854 # adimensional
+
+T[cells_in_bh] = T_bh
+rho[cells_in_bh] = rho_bh
+Ye[cells_in_bh] = Ye_bh
+
+# T_average_cell_boundary_bh = np.average( T[cells_in_boundary_of_bg] )
+# rho_average_cell_boundary_bh = np.average( rho[cells_in_boundary_of_bg] )
+# Ye_average_cell_boundary_bh = np.average( Ye[cells_in_boundary_of_bg] )
+
+# print(f"T_average_cell_boundary_bh = {T_average_cell_boundary_bh:.2e} # MeV")
+# print(f"rho_average_cell_boundary_bh = {rho_average_cell_boundary_bh:.2e} # g/cm^3")
+# print(f"Ye_average_cell_boundary_bh = {Ye_average_cell_boundary_bh:.2e} # adimensional")
+
+# T[cells_in_bh] = T_average_cell_boundary_bh
+# rho[cells_in_bh] = rho_average_cell_boundary_bh
+# Ye[cells_in_bh] = Ye_average_cell_boundary_bh
 
 # LS220.H5 data
 logrho_LS220 = [
