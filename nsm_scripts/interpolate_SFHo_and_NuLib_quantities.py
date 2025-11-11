@@ -49,8 +49,8 @@ Usage:
 # --------------------------------------------------------------------------------
 
 matter_file_path = 'rho_Ye_T.hdf5'
-nu_lib_table_dir = '/home/erick/jobs_emu/tables/NuLib_SFHo.h5'
-eos_table_dir = '/home/erick/jobs_emu/tables/LS220.h5'
+nu_lib_table_dir = '/mnt/scratch/erick/jobs_emu/tables/NuLib_SFHo.h5'
+eos_table_dir = '/mnt/scratch/erick/jobs_emu/tables/LS220.h5'
 
 # --------------------------------------------------------------------------------
 
@@ -335,6 +335,7 @@ delta_E_cubic_bins_MeV_cubic = E_bins_MeV_top**3 - E_bins_MeV_bottom**3 # MeV^3
 # --------------------------------------------------------------------------------
 # Define vacuum numpy arrays to store data
 
+mu_e_MeV    = np.zeros_like(temperature_MeV) # MeV
 mu_nu_e_MeV    = np.zeros_like(temperature_MeV) # MeV
 mu_nubar_e_MeV = np.zeros_like(temperature_MeV) # MeV
 
@@ -403,7 +404,8 @@ def compute_weak_quantities(rho_this_gccm, ye_this, T_this_MeV, E_bins_this_MeV,
             nu_x_absorption_opacity_this_cm,
             nu_e_scattering_opacity_this_cm,
             nubar_e_scattering_opacity_this_cm,
-            nu_x_scattering_opacity_this_cm]
+            nu_x_scattering_opacity_this_cm,
+            mu_e]
 
 # --------------------------------------------------------------------------------
 
@@ -446,7 +448,8 @@ for idx, result in enumerate(results):
      nu_x_absorption_opacity_cm[:, i, j, k],
      nu_e_scattering_opacity_cm[:, i, j, k],
      nubar_e_scattering_opacity_cm[:, i, j, k],
-     nu_x_scattering_opacity_cm[:, i, j, k]) = result
+     nu_x_scattering_opacity_cm[:, i, j, k],
+     mu_e_MeV[i,j,k]) = result
 
 # --------------------------------------------------------------------------------
 
@@ -481,6 +484,7 @@ save_output_data("n_nu_e_eq_ccm.h5", Xc, Yc, Zc, "n_nu_e_eq_ccm", n_nu_e_eq_ccm)
 save_output_data("n_nubar_e_eq_ccm.h5", Xc, Yc, Zc, "n_nubar_e_eq_ccm", n_nubar_e_eq_ccm)
 save_output_data("n_nu_x_eq_ccm.h5", Xc, Yc, Zc, "n_nu_x_eq_ccm", n_nu_x_eq_ccm)
 
+save_output_data("mu_e_MeV.h5", Xc, Yc, Zc, "mu_e_MeV", mu_e_MeV)
 save_output_data("mu_nu_e_MeV.h5", Xc, Yc, Zc, "mu_nu_e_MeV", mu_nu_e_MeV)
 save_output_data("mu_nubar_e_MeV.h5", Xc, Yc, Zc, "mu_nubar_e_MeV", mu_nubar_e_MeV)
 
