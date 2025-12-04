@@ -223,8 +223,8 @@ def plot_pcolormesh_with_contour_and_scatter_one_cbar(
     ax.set_ylabel(y_label)
     ax.set_title(title)
 
-    ax.set_xlim(0, 2 * np.pi)
-    ax.set_ylim(-0.98, 0.98)
+    ax.set_xlim(0 - 0.3, 2 * np.pi + 0.3)
+    ax.set_ylim(-1.1, +1.1)
 
     # Add only one color bar
     cbar1 = fig.colorbar(c1, ax=ax, label=cbar_label1, location='right')
